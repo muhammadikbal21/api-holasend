@@ -5,7 +5,6 @@ import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserLoginRequest;
-import com.enigmacamp.api.holasend.models.jwt.JwtRequest;
 import com.enigmacamp.api.holasend.models.jwt.JwtResponse;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.UserService;
@@ -19,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
-import java.io.UnsupportedEncodingException;
 
 @RestController
 @CrossOrigin
@@ -49,10 +47,9 @@ public class AuthController {
         final UserDetails userDetails = service
                 .loadUserByUsername(authenticationRequest.getUsername());
 
-        final String token = jwtToken.generateToken(userDetails);
+        final String token = jwtToken.generateToken(userDetails, 30);
 
         return ResponseMessage.success(new JwtResponse(token));
-
     }
 
     @GetMapping("/forget-password/{username}")
@@ -60,7 +57,7 @@ public class AuthController {
             @PathVariable String username
     ) throws MessagingException {
         UserDetails userDetails = service.loadUserByUsername(username);
-        String token = jwtToken.generateToken(userDetails);
+        String token = jwtToken.generateToken(userDetails, 1);
 
         User user = repository.findByUsername(username);
         user.setToken(token);
@@ -73,7 +70,7 @@ public class AuthController {
         return ResponseMessage.success(email);
     }
 
-    private void authenticate(String username, String password) throws Exception {
+    private void authenticate(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException | BadCredentialsException e) {
