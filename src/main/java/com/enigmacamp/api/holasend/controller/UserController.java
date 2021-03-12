@@ -146,9 +146,14 @@ public class UserController {
 
         User user = repository.findByUsername(username);
 
+        if (!token.equals(user.getToken())) {
+            throw new InvalidCredentialsException();
+        }
+
         String password = model.getPassword();
         String encodedPassword = new BCryptPasswordEncoder().encode(password);
 
+        user.setToken(null);
         user.setPassword(encodedPassword);
         repository.save(user);
         UserResponse data = modelMapper.map(user, UserResponse.class);

@@ -63,12 +63,14 @@ public class AuthController {
         String token = jwtToken.generateToken(userDetails);
 
         User user = repository.findByUsername(username);
-
+        user.setToken(token);
         String email = user.getEmail();
 
-        String response = emailService.sendTokenToEmail(email, username, token);
+        emailService.sendTokenToEmail(email, username, token);
+        repository.save(user);
 
-        return ResponseMessage.success(response);
+        System.out.println(token);
+        return ResponseMessage.success(email);
     }
 
     private void authenticate(String username, String password) throws Exception {
