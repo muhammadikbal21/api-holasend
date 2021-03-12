@@ -4,11 +4,11 @@ import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.entities.UserDetails;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
+import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
-import com.enigmacamp.api.holasend.models.entitymodels.request.UserRequest;
+import com.enigmacamp.api.holasend.models.entitymodels.request.UserChangePasswordRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserWithUserDetailsRequest;
-import com.enigmacamp.api.holasend.models.entitymodels.response.UserDetailsResponse;
 import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.UserDetailsService;
@@ -41,7 +41,7 @@ public class UserController {
     private JwtToken jwtTokenUtil;
 
     @PostMapping("/register")
-    public ResponseMessage<UserDetailsResponse> addWithUser(
+    public ResponseMessage<UserResponse> addWithUser(
             @RequestBody @Valid UserWithUserDetailsRequest model
     ) {
         if (repository.existsByUsername(model.getUser().getUsername())) {
@@ -61,7 +61,7 @@ public class UserController {
 
         repository.save(user);
 
-        UserDetailsResponse data = modelMapper.map(userDetails, UserDetailsResponse.class);
+        UserResponse data = modelMapper.map(user, UserResponse.class);
         return ResponseMessage.success(data);
     }
 
@@ -137,15 +137,23 @@ public class UserController {
         throw new InvalidPermissionsException();
     }
 
-    @PutMapping("/edit-account")
-    public Boolean edit(@RequestBody UserRequest model) {
-        User account = repository.findByUsername(model.getUsername());
+    @PutMapping("/reset-password/{token}")
+    public ResponseMessage<UserResponse> edit(
+            @PathVariable String token,
+            @RequestBody UserChangePasswordRequest model
+    ) {
+        String username = jwtTokenUtil.getUsernameFromToken(token);
+
+        User user = repository.findByUsername(username);
+
         String password = model.getPassword();
         String encodedPassword = new BCryptPasswordEncoder().encode(password);
 
-        account.setPassword(encodedPassword);
-        repository.save(account);
-        return true;
+        user.setPassword(encodedPassword);
+        repository.save(user);
+        UserResponse data = modelMapper.map(user, UserResponse.class);
+
+        return ResponseMessage.success(data);
     }
 
     @GetMapping("/me")

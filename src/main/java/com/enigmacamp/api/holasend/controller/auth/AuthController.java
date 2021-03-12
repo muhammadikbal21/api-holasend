@@ -4,6 +4,7 @@ import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
+import com.enigmacamp.api.holasend.models.entitymodels.request.UserLoginRequest;
 import com.enigmacamp.api.holasend.models.jwt.JwtRequest;
 import com.enigmacamp.api.holasend.models.jwt.JwtResponse;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
@@ -41,7 +42,7 @@ public class AuthController {
 
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseMessage<JwtResponse> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+    public ResponseMessage<JwtResponse> createAuthenticationToken(@RequestBody UserLoginRequest authenticationRequest) throws Exception {
 
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
