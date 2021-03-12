@@ -1,0 +1,2 @@
+INSERT INTO user_details (id, is_deleted, created_date, contact_number, first_name, identification_number, identity_category, last_name) VALUES ("1", 0, '2021-01-01', 'contact_number', 'Admin', '12345678910', 0, 'Admin');
+INSERT INTO user (id, is_deleted, created_date, email, password, role, username, user_details_id) VALUES ("1", 0, '2021-01-01', 'admin@gmail.com', '$2a$10$ssJg2MpBlaqyDWli4yzFJOLT9TSRZV.Jsxkdtv1fqhGmK2Tqzt0D6', 0, 'admin', "1");
