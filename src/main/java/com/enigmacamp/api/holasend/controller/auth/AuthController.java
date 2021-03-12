@@ -8,6 +8,7 @@ import com.enigmacamp.api.holasend.models.jwt.JwtRequest;
 import com.enigmacamp.api.holasend.models.jwt.JwtResponse;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.UserService;
+import com.enigmacamp.api.holasend.services.mail.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,6 +16,9 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import javax.mail.MessagingException;
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @CrossOrigin
@@ -32,6 +36,9 @@ public class AuthController {
     @Autowired
     private UserRepository repository;
 
+    @Autowired
+    private EmailService emailService;
+
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseMessage<JwtResponse> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -48,13 +55,19 @@ public class AuthController {
     }
 
     @GetMapping("/forget-password/{username}")
-    public ResponseMessage<Boolean> forgetPassword(
+    public ResponseMessage<String> forgetPassword(
             @PathVariable String username
-    ) {
+    ) throws MessagingException {
         UserDetails userDetails = service.loadUserByUsername(username);
         String token = jwtToken.generateToken(userDetails);
 
-        return ResponseMessage.success(true);
+        User user = repository.findByUsername(username);
+
+        String email = user.getEmail();
+
+        String response = emailService.sendTokenToEmail(email, username, token);
+
+        return ResponseMessage.success(response);
     }
 
     private void authenticate(String username, String password) throws Exception {

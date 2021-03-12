@@ -19,6 +19,18 @@ spring:
     multipart:
       max-file-size: 300KB
       max-request-size: 300KB
+  mail:
+    protocol: smtp
+    host: smtp.gmail.com
+    port: 587
+    username: enigmacampbatch6@gmail.com
+    password: byenjyffuacdnpxr
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
