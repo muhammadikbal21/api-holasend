@@ -40,9 +40,16 @@ public class AuthController {
 
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseMessage<JwtResponse> createAuthenticationToken(@RequestBody UserLoginRequest authenticationRequest) throws Exception {
+    public ResponseMessage<JwtResponse> createAuthenticationToken(@RequestBody UserLoginRequest authenticationRequest) {
 
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+
+        User user = repository.findByUsername(authenticationRequest.getUsername());
+
+        if (user.getToken() != null) {
+            user.setToken(null);
+            repository.save(user);
+        }
 
         final UserDetails userDetails = service
                 .loadUserByUsername(authenticationRequest.getUsername());
@@ -65,8 +72,6 @@ public class AuthController {
 
         emailService.sendTokenToEmail(email, username, token);
         repository.save(user);
-
-        System.out.println(token);
         return ResponseMessage.success(email);
     }
 

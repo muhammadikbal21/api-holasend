@@ -27,7 +27,7 @@ public class UserDetailsController {
     private ModelMapper modelMapper;
 
     @Autowired
-    private UserRepository accountRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private JwtToken jwtTokenUtil;
@@ -41,11 +41,11 @@ public class UserDetailsController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             String username = jwtTokenUtil.getUsernameFromToken(token);
-            User account = accountRepository.findByUsername(username);
+            User user = userRepository.findByUsername(username);
 
-            UserDetailsResponse data = modelMapper.map(account.getUserDetails(), UserDetailsResponse.class);
+            UserDetailsResponse data = modelMapper.map(user.getUserDetails(), UserDetailsResponse.class);
 
-            if (account.getUserDetails().getId().equals(id)) {
+            if (user.getUserDetails().getId().equals(id)) {
                 return ResponseMessage.success(data);
             }
         }
@@ -64,9 +64,9 @@ public class UserDetailsController {
         if (entity != null && token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             String username = jwtTokenUtil.getUsernameFromToken(token);
-            User account = accountRepository.findByUsername(username);
+            User user = userRepository.findByUsername(username);
 
-            if (entity.getId().equals(account.getUserDetails().getId())) {
+            if (entity.getId().equals(user.getUserDetails().getId())) {
                 modelMapper.map(model, entity);
                 entity = service.save(entity);
 

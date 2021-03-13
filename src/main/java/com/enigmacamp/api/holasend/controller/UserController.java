@@ -57,7 +57,7 @@ public class UserController {
         user.setEmail(model.getUser().getEmail());
         String hashPassword = new BCryptPasswordEncoder().encode(model.getUser().getPassword());
         user.setPassword(hashPassword);
-        user.setRole(CUSTOMER);
+        user.setRole(UNASSIGNED);
 
         repository.save(user);
 
@@ -72,18 +72,18 @@ public class UserController {
     ) {
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
-            User account = repository.findByUsername(username);
+            User user = repository.findByUsername(username);
             token = token.substring(7);
             String loggedInUsername = jwtTokenUtil.getUsernameFromToken(token);
             User loggedInUser = repository.findByUsername(loggedInUsername);
 
-            if (loggedInUser.getUsername().equals(account.getUsername()) || loggedInUser.getRole().equals(CUSTOMER))
+            if (loggedInUser.getUsername().equals(user.getUsername()) || loggedInUser.getRole().equals(UNASSIGNED))
                 throw new InvalidPermissionsException();
 
-            account.setRole(CUSTOMER);
-            repository.save(account);
+            user.setRole(UNASSIGNED);
+            repository.save(user);
 
-            UserResponse data = modelMapper.map(account, UserResponse.class);
+            UserResponse data = modelMapper.map(user, UserResponse.class);
             return ResponseMessage.success(data);
         }
         throw new InvalidPermissionsException();
@@ -96,18 +96,18 @@ public class UserController {
     ) {
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
-            User account = repository.findByUsername(username);
+            User user = repository.findByUsername(username);
             token = token.substring(7);
             String loggedInUsername = jwtTokenUtil.getUsernameFromToken(token);
             User loggedInUser = repository.findByUsername(loggedInUsername);
 
-            if (loggedInUser.getUsername().equals(account.getUsername()) || loggedInUser.getRole().equals(CUSTOMER) || loggedInUser.getRole().equals(COURIER))
+            if (loggedInUser.getUsername().equals(user.getUsername()) || loggedInUser.getRole().equals(UNASSIGNED) || loggedInUser.getRole().equals(COURIER))
                 throw new InvalidPermissionsException();
 
-            account.setRole(COURIER);
-            repository.save(account);
+            user.setRole(COURIER);
+            repository.save(user);
 
-            UserResponse data = modelMapper.map(account, UserResponse.class);
+            UserResponse data = modelMapper.map(user, UserResponse.class);
             return ResponseMessage.success(data);
         }
         throw new InvalidPermissionsException();
@@ -120,7 +120,7 @@ public class UserController {
     ) {
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
-            User account = repository.findByUsername(username);
+            User user = repository.findByUsername(username);
             token = token.substring(7);
             String loggedInUsername = jwtTokenUtil.getUsernameFromToken(token);
             User loggedInUser = repository.findByUsername(loggedInUsername);
@@ -128,10 +128,10 @@ public class UserController {
             if (!loggedInUser.getRole().equals(ADMIN)) {
                 throw new InvalidPermissionsException();
             }
-            account.setRole(ADMIN);
-            repository.save(account);
+            user.setRole(ADMIN);
+            repository.save(user);
 
-            UserResponse data = modelMapper.map(account, UserResponse.class);
+            UserResponse data = modelMapper.map(user, UserResponse.class);
             return ResponseMessage.success(data);
         }
         throw new InvalidPermissionsException();
@@ -172,10 +172,10 @@ public class UserController {
 
             String username = jwtTokenUtil.getUsernameFromToken(token);
 
-            User account = repository.findByUsername(username);
+            User user = repository.findByUsername(username);
 
-            if(account != null) {
-                UserResponse data = modelMapper.map(account, UserResponse.class);
+            if(user != null) {
+                UserResponse data = modelMapper.map(user, UserResponse.class);
                 return ResponseMessage.success(data);
             }
         }
