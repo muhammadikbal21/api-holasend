@@ -4,8 +4,8 @@ import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
+import com.enigmacamp.api.holasend.models.TokenWithRoleModel;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserLoginRequest;
-import com.enigmacamp.api.holasend.models.jwt.JwtResponse;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.UserService;
 import com.enigmacamp.api.holasend.services.mail.EmailService;
@@ -15,6 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
@@ -40,7 +41,7 @@ public class AuthController {
 
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseMessage<JwtResponse> createAuthenticationToken(@RequestBody UserLoginRequest authenticationRequest) {
+    public ResponseMessage<TokenWithRoleModel> createAuthenticationToken(@RequestBody UserLoginRequest authenticationRequest) {
 
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
@@ -56,21 +57,22 @@ public class AuthController {
 
         final String token = jwtToken.generateToken(userDetails, 30 * 24);
 
-        return ResponseMessage.success(new JwtResponse(token));
+        TokenWithRoleModel data = new TokenWithRoleModel(token, user.getRole());
+
+        return ResponseMessage.success(data);
     }
 
     @GetMapping("/forget-password/{username}")
     public ResponseMessage<String> forgetPassword(
             @PathVariable String username
     ) throws MessagingException {
-        UserDetails userDetails = service.loadUserByUsername(username);
-        String token = jwtToken.generateToken(userDetails, 1);
-
         User user = repository.findByUsername(username);
-        user.setToken(token);
+        String secretActivationCode = new BCryptPasswordEncoder().encode(user.getPassword());
+
+        user.setToken(secretActivationCode);
         String email = user.getEmail();
 
-        emailService.sendTokenToEmail(email, username, token);
+        emailService.sendTokenToEmail(email, username, secretActivationCode);
         repository.save(user);
         return ResponseMessage.success(email);
     }

@@ -14,11 +14,11 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public String sendTokenToEmail(String to, String username, String token) throws MessagingException {
+    public String sendTokenToEmail(String to, String username, String secretActivationCode) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        String html = EmailContent.resetPassword(to, username, token);
+        String html = EmailContent.resetPassword(to, username, secretActivationCode);
 
         helper.setTo(to);
         helper.setSubject("Reset Password");

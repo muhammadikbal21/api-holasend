@@ -2,7 +2,7 @@ package com.enigmacamp.api.holasend.services.mail;
 
 public class EmailContent {
 
-    public static String resetPassword(String to, String username, String token) {
+    public static String resetPassword(String to, String username, String secretActivationCode) {
         return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:v=\"urn:schemas-microsoft-com:vml\">\n" +

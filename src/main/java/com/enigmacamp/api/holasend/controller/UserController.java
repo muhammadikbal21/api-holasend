@@ -3,6 +3,7 @@ package com.enigmacamp.api.holasend.controller;
 import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.entities.UserDetails;
+import com.enigmacamp.api.holasend.enums.RoleEnum;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 
+import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.validateNotDisabled;
 import static com.enigmacamp.api.holasend.enums.RoleEnum.*;
 
 
@@ -40,6 +42,29 @@ public class UserController {
     @Autowired
     private JwtToken jwtTokenUtil;
 
+    private void validateAdmin(User loggedInUser, User user) {
+        if (loggedInUser.getUsername().equals(user.getUsername()) || !loggedInUser.getRole().equals(ADMIN))
+            throw new InvalidPermissionsException();
+    }
+
+    private ResponseMessage<UserResponse> changeRole(String username, String token, RoleEnum role) {
+        if (token != null && token.startsWith("Bearer ")) {
+            User user = repository.findByUsername(username);
+            token = token.substring(7);
+            String loggedInUsername = jwtTokenUtil.getUsernameFromToken(token);
+            User loggedInUser = repository.findByUsername(loggedInUsername);
+
+            validateAdmin(loggedInUser, user);
+
+            user.setRole(role);
+            repository.save(user);
+
+            UserResponse data = modelMapper.map(user, UserResponse.class);
+            return ResponseMessage.success(data);
+        }
+        throw new InvalidPermissionsException();
+    }
+
     @PostMapping("/register")
     public ResponseMessage<UserResponse> addWithUser(
             @RequestBody @Valid UserWithUserDetailsRequest model
@@ -51,10 +76,8 @@ public class UserController {
         UserDetails userDetails = modelMapper.map(model.getUserDetails(), UserDetails.class);
         userDetails = service.save(userDetails);
 
-        User user = new User();
-        user.setUsername(model.getUser().getUsername());
+        User user = modelMapper.map(model.getUser(), User.class);
         user.setUserDetails(userDetails);
-        user.setEmail(model.getUser().getEmail());
         String hashPassword = new BCryptPasswordEncoder().encode(model.getUser().getPassword());
         user.setPassword(hashPassword);
         user.setRole(UNASSIGNED);
@@ -65,28 +88,14 @@ public class UserController {
         return ResponseMessage.success(data);
     }
 
-    @GetMapping("/{username}/make-customer")
-    public ResponseMessage<UserResponse> makeCustomer(
+
+    @GetMapping("/{username}/disable-user")
+    public ResponseMessage<UserResponse> makeUnassigned(
             @PathVariable String username,
             HttpServletRequest request
     ) {
         String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            User user = repository.findByUsername(username);
-            token = token.substring(7);
-            String loggedInUsername = jwtTokenUtil.getUsernameFromToken(token);
-            User loggedInUser = repository.findByUsername(loggedInUsername);
-
-            if (loggedInUser.getUsername().equals(user.getUsername()) || loggedInUser.getRole().equals(UNASSIGNED))
-                throw new InvalidPermissionsException();
-
-            user.setRole(UNASSIGNED);
-            repository.save(user);
-
-            UserResponse data = modelMapper.map(user, UserResponse.class);
-            return ResponseMessage.success(data);
-        }
-        throw new InvalidPermissionsException();
+        return changeRole(username, token, DISABLED);
     }
 
     @GetMapping("/{username}/make-courier")
@@ -95,22 +104,16 @@ public class UserController {
             HttpServletRequest request
     ) {
         String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            User user = repository.findByUsername(username);
-            token = token.substring(7);
-            String loggedInUsername = jwtTokenUtil.getUsernameFromToken(token);
-            User loggedInUser = repository.findByUsername(loggedInUsername);
+        return changeRole(username, token, COURIER);
+    }
 
-            if (loggedInUser.getUsername().equals(user.getUsername()) || loggedInUser.getRole().equals(UNASSIGNED) || loggedInUser.getRole().equals(COURIER))
-                throw new InvalidPermissionsException();
-
-            user.setRole(COURIER);
-            repository.save(user);
-
-            UserResponse data = modelMapper.map(user, UserResponse.class);
-            return ResponseMessage.success(data);
-        }
-        throw new InvalidPermissionsException();
+    @GetMapping("/{username}/make-staff")
+    public ResponseMessage<UserResponse> makeStaff(
+            @PathVariable String username,
+            HttpServletRequest request
+    ) {
+        String token = request.getHeader("Authorization");
+        return changeRole(username, token, STAFF);
     }
 
     @GetMapping("/{username}/make-admin")
@@ -119,22 +122,7 @@ public class UserController {
             HttpServletRequest request
     ) {
         String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            User user = repository.findByUsername(username);
-            token = token.substring(7);
-            String loggedInUsername = jwtTokenUtil.getUsernameFromToken(token);
-            User loggedInUser = repository.findByUsername(loggedInUsername);
-
-            if (!loggedInUser.getRole().equals(ADMIN)) {
-                throw new InvalidPermissionsException();
-            }
-            user.setRole(ADMIN);
-            repository.save(user);
-
-            UserResponse data = modelMapper.map(user, UserResponse.class);
-            return ResponseMessage.success(data);
-        }
-        throw new InvalidPermissionsException();
+        return changeRole(username, token, ADMIN);
     }
 
     @PutMapping("/reset-password/{token}")
@@ -146,9 +134,8 @@ public class UserController {
 
         User user = repository.findByUsername(username);
 
-        if (!token.equals(user.getToken())) {
+        if (!token.equals(user.getToken()))
             throw new InvalidCredentialsException();
-        }
 
         String password = model.getPassword();
         String encodedPassword = new BCryptPasswordEncoder().encode(password);
@@ -165,6 +152,7 @@ public class UserController {
     public ResponseMessage<UserResponse> findById(
             HttpServletRequest request
     ) {
+        validateNotDisabled(request, jwtTokenUtil, repository);
         String token = request.getHeader("Authorization");
 
         if (token != null && token.startsWith("Bearer ")) {
