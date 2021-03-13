@@ -7,14 +7,21 @@ import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserDetailsRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.UserDetailsResponse;
+import com.enigmacamp.api.holasend.models.entitysearch.UserDetailsSearch;
+import com.enigmacamp.api.holasend.models.pagination.PagedList;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.UserDetailsService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.validateRoleAdmin;
 
 @RequestMapping("/user-details")
 @RestController
@@ -75,5 +82,45 @@ public class UserDetailsController {
             }
         }
         throw new InvalidPermissionsException();
+    }
+
+    @GetMapping("/all")
+    public ResponseMessage<List<UserDetailsResponse>> findAll(
+            HttpServletRequest request
+    ) {
+        validateRoleAdmin(request, jwtTokenUtil, userRepository);
+        List<UserDetails> entities = service.findAll();
+        List<UserDetailsResponse> responses = entities.stream()
+                .map(e -> modelMapper.map(e, UserDetailsResponse.class))
+                .collect(Collectors.toList());
+
+        return ResponseMessage.success(responses);
+    }
+
+    @GetMapping
+    public ResponseMessage<PagedList<UserDetailsResponse>> findAll(
+            @Valid UserDetailsSearch model,
+            HttpServletRequest request
+    ) {
+        validateRoleAdmin(request, jwtTokenUtil, userRepository);
+        UserDetails search = modelMapper.map(model, UserDetails.class);
+
+        Page<UserDetails> entityPage = service.findAll(
+                search, model.getPage(), model.getSize(), model.getSort()
+        );
+        List<UserDetails> entities = entityPage.toList();
+
+        List<UserDetailsResponse> models = entities.stream()
+                .map(e -> modelMapper.map(e, UserDetailsResponse.class))
+                .collect(Collectors.toList());
+
+        PagedList<UserDetailsResponse> data = new PagedList<>(
+                models,
+                entityPage.getNumber(),
+                entityPage.getSize(),
+                entityPage.getTotalElements()
+        );
+
+        return ResponseMessage.success(data);
     }
 }

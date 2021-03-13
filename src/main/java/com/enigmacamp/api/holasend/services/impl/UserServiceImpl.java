@@ -1,29 +1,55 @@
 package com.enigmacamp.api.holasend.services.impl;
 
 import com.enigmacamp.api.holasend.entities.User;
-import com.enigmacamp.api.holasend.repositories.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.enigmacamp.api.holasend.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import static java.util.Collections.emptyList;
+import java.util.List;
 
 @Service
-public class UserServiceImpl implements UserDetailsService {
+public class UserServiceImpl implements UserService {
 
-    private UserRepository repository;
+    @Autowired
+    private JpaRepository<User, String> repository;
 
-    public UserServiceImpl(UserRepository applicationUserRepository) {
-        this.repository = applicationUserRepository;
+    @Override
+    public User save(User entity) {
+        return repository.save(entity);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User applicationUser = repository.findByUsername(username);
-        if (applicationUser == null) {
-            throw new UsernameNotFoundException(username);
+    public User removeById(String id) {
+        User entity = findById(id);
+        if(entity != null) {
+            repository.deleteById(id);
+            return entity;
+        } else {
+            return null;
         }
-        return new org.springframework.security.core.userdetails.User(applicationUser.getUsername(), applicationUser.getPassword(), emptyList());
+    }
+
+    @Override
+    public User findById(String id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return repository.findAll();
+    }
+
+    @Override
+    public Page<User> findAll(User search, int page, int size, Sort.Direction direction) {
+        Sort sort = Sort.Direction.DESC.equals(direction) ? Sort.by(direction, "id") : Sort.by("id");
+        ExampleMatcher matcher = ExampleMatcher.matchingAll()
+                .withIgnoreCase()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+        return repository.findAll(
+                Example.of(search, matcher),
+                PageRequest.of(page, size, sort)
+        );
     }
 }

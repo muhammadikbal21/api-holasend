@@ -1,6 +1,6 @@
 package com.enigmacamp.api.holasend.configs.jwt;
 
-import com.enigmacamp.api.holasend.services.UserService;
+import com.enigmacamp.api.holasend.services.jwt.UserJwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +25,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Autowired
-    private UserService service;
+    private UserJwtService service;
 
     @Autowired
     private JwtRequestFilter jwtRequestFilter;

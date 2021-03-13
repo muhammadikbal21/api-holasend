@@ -1,6 +1,6 @@
 package com.enigmacamp.api.holasend.configs.jwt;
 
-import com.enigmacamp.api.holasend.services.UserService;
+import com.enigmacamp.api.holasend.services.jwt.UserJwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +22,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 
     @Autowired
-    private UserService service;
+    private UserJwtService service;
 
     private final JwtToken jwtTokenUtil;
 

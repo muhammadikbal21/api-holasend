@@ -11,18 +11,25 @@ import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserChangePasswordRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserWithUserDetailsRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
+import com.enigmacamp.api.holasend.models.entitysearch.UserSearch;
+import com.enigmacamp.api.holasend.models.pagination.PagedList;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.UserDetailsService;
+import com.enigmacamp.api.holasend.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.validateNotDisabled;
+import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.validateRoleAdmin;
 import static com.enigmacamp.api.holasend.enums.RoleEnum.*;
 
 
@@ -34,7 +41,10 @@ public class UserController {
     private UserRepository repository;
 
     @Autowired
-    private UserDetailsService service;
+    private UserDetailsService userDetailsService;
+
+    @Autowired
+    private UserService service;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -74,7 +84,7 @@ public class UserController {
         }
 
         UserDetails userDetails = modelMapper.map(model.getUserDetails(), UserDetails.class);
-        userDetails = service.save(userDetails);
+        userDetails = userDetailsService.save(userDetails);
 
         User user = modelMapper.map(model.getUser(), User.class);
         user.setUserDetails(userDetails);
@@ -168,5 +178,46 @@ public class UserController {
             }
         }
         throw new EntityNotFoundException();
+    }
+
+
+    @GetMapping("/all")
+    public ResponseMessage<List<UserResponse>> findAll(
+            HttpServletRequest request
+    ) {
+        validateRoleAdmin(request, jwtTokenUtil, repository);
+        List<User> entities = service.findAll();
+        List<UserResponse> responses = entities.stream()
+                .map(e -> modelMapper.map(e, UserResponse.class))
+                .collect(Collectors.toList());
+
+        return ResponseMessage.success(responses);
+    }
+
+    @GetMapping
+    public ResponseMessage<PagedList<UserResponse>> findAll(
+            @Valid UserSearch model,
+            HttpServletRequest request
+    ) {
+        validateRoleAdmin(request, jwtTokenUtil, repository);
+        User search = modelMapper.map(model, User.class);
+
+        Page<User> entityPage = service.findAll(
+                search, model.getPage(), model.getSize(), model.getSort()
+        );
+        List<User> entities = entityPage.toList();
+
+        List<UserResponse> models = entities.stream()
+                .map(e -> modelMapper.map(e, UserResponse.class))
+                .collect(Collectors.toList());
+
+        PagedList<UserResponse> data = new PagedList<>(
+                models,
+                entityPage.getNumber(),
+                entityPage.getSize(),
+                entityPage.getTotalElements()
+        );
+
+        return ResponseMessage.success(data);
     }
 }

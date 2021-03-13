@@ -7,7 +7,7 @@ import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.TokenWithRoleModel;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserLoginRequest;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
-import com.enigmacamp.api.holasend.services.UserService;
+import com.enigmacamp.api.holasend.services.jwt.UserJwtService;
 import com.enigmacamp.api.holasend.services.mail.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 
+import static com.enigmacamp.api.holasend.enums.RoleEnum.DISABLED;
+
 @RestController
 @CrossOrigin
 public class AuthController {
@@ -31,7 +33,7 @@ public class AuthController {
     private JwtToken jwtToken;
 
     @Autowired
-    private UserService service;
+    private UserJwtService service;
 
     @Autowired
     private UserRepository repository;
@@ -51,6 +53,9 @@ public class AuthController {
             user.setToken(null);
             repository.save(user);
         }
+
+        if (user.getRole().equals(DISABLED))
+            throw new InvalidCredentialsException();
 
         final UserDetails userDetails = service
                 .loadUserByUsername(authenticationRequest.getUsername());
