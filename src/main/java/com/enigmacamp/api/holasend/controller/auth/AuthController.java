@@ -3,6 +3,7 @@ package com.enigmacamp.api.holasend.controller.auth;
 import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
+import com.enigmacamp.api.holasend.exceptions.UserDisabledException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.TokenWithRoleModel;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserLoginRequest;
@@ -55,7 +56,7 @@ public class AuthController {
         }
 
         if (user.getRole().equals(DISABLED))
-            throw new InvalidCredentialsException();
+            throw new UserDisabledException();
 
         final UserDetails userDetails = service
                 .loadUserByUsername(authenticationRequest.getUsername());

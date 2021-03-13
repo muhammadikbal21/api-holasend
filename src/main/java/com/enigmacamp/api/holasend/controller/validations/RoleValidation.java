@@ -3,8 +3,8 @@ package com.enigmacamp.api.holasend.controller.validations;
 import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.enums.RoleEnum;
-import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
+import com.enigmacamp.api.holasend.exceptions.UserDisabledException;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +36,7 @@ public class RoleValidation {
         String username = startWithBearer(request, jwtTokenUtil);
         User user = userRepository.findByUsername(username);
         if (user.getRole().equals(DISABLED)) {
-            throw new InvalidCredentialsException();
+            throw new UserDisabledException();
         }
     }
 
