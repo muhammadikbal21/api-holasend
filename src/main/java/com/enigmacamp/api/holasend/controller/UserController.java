@@ -7,6 +7,7 @@ import com.enigmacamp.api.holasend.enums.RoleEnum;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
+import com.enigmacamp.api.holasend.exceptions.UsernameExistException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserChangePasswordRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserWithUserDetailsRequest;
@@ -80,7 +81,7 @@ public class UserController {
             @RequestBody @Valid UserWithUserDetailsRequest model
     ) {
         if (repository.existsByUsername(model.getUser().getUsername())) {
-            throw new ValidationException("Username already existed");
+            throw new UsernameExistException();
         }
 
         UserDetails userDetails = modelMapper.map(model.getUserDetails(), UserDetails.class);
