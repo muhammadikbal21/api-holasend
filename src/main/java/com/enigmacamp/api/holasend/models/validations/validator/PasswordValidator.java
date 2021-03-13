@@ -1,7 +1,6 @@
 package com.enigmacamp.api.holasend.models.validations.validator;
 
 import com.enigmacamp.api.holasend.models.validations.Password;
-import com.enigmacamp.api.holasend.models.validations.Username;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
