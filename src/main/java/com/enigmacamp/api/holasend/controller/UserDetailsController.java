@@ -9,8 +9,8 @@ import com.enigmacamp.api.holasend.models.entitymodels.request.UserDetailsReques
 import com.enigmacamp.api.holasend.models.entitymodels.response.UserDetailsResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.UserDetailsSearch;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
-import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.UserDetailsService;
+import com.enigmacamp.api.holasend.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,7 +34,7 @@ public class UserDetailsController {
     private ModelMapper modelMapper;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private JwtToken jwtTokenUtil;
@@ -48,7 +48,7 @@ public class UserDetailsController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             String username = jwtTokenUtil.getUsernameFromToken(token);
-            User user = userRepository.findByUsername(username);
+            User user = userService.findByUsername(username);
 
             UserDetailsResponse data = modelMapper.map(user.getUserDetails(), UserDetailsResponse.class);
 
@@ -71,7 +71,7 @@ public class UserDetailsController {
         if (entity != null && token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             String username = jwtTokenUtil.getUsernameFromToken(token);
-            User user = userRepository.findByUsername(username);
+            User user = userService.findByUsername(username);
 
             if (entity.getId().equals(user.getUserDetails().getId())) {
                 modelMapper.map(model, entity);
@@ -88,7 +88,7 @@ public class UserDetailsController {
     public ResponseMessage<List<UserDetailsResponse>> findAll(
             HttpServletRequest request
     ) {
-        validateRoleAdmin(request, jwtTokenUtil, userRepository);
+        validateRoleAdmin(request, jwtTokenUtil, userService);
         List<UserDetails> entities = service.findAll();
         List<UserDetailsResponse> responses = entities.stream()
                 .map(e -> modelMapper.map(e, UserDetailsResponse.class))
@@ -102,7 +102,7 @@ public class UserDetailsController {
             @Valid UserDetailsSearch model,
             HttpServletRequest request
     ) {
-        validateRoleAdmin(request, jwtTokenUtil, userRepository);
+        validateRoleAdmin(request, jwtTokenUtil, userService);
         UserDetails search = modelMapper.map(model, UserDetails.class);
 
         Page<UserDetails> entityPage = service.findAll(

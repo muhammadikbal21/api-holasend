@@ -5,44 +5,44 @@ import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.enums.RoleEnum;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
 import com.enigmacamp.api.holasend.exceptions.UserDisabledException;
-import com.enigmacamp.api.holasend.repositories.UserRepository;
+import com.enigmacamp.api.holasend.services.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 
 import static com.enigmacamp.api.holasend.enums.RoleEnum.*;
 
 public class RoleValidation {
-    public static void validateRoleAdmin(HttpServletRequest request, JwtToken jwtTokenUtil, UserRepository userRepository) {
-        validateRole(request, jwtTokenUtil, userRepository, ADMIN);
+    public static void validateRoleAdmin(HttpServletRequest request, JwtToken jwtTokenUtil, UserService userService) {
+        validateRole(request, jwtTokenUtil, userService, ADMIN);
     }
 
-    public static void validateRoleStaff(HttpServletRequest request, JwtToken jwtTokenUtil, UserRepository userRepository) {
-        validateRole(request, jwtTokenUtil, userRepository, STAFF);
+    public static void validateRoleStaff(HttpServletRequest request, JwtToken jwtTokenUtil, UserService userService) {
+        validateRole(request, jwtTokenUtil, userService, STAFF);
     }
 
-    public static void validateRoleAdminOrStaff(HttpServletRequest request, JwtToken jwtTokenUtil, UserRepository userRepository) {
+    public static void validateRoleAdminOrStaff(HttpServletRequest request, JwtToken jwtTokenUtil, UserService userService) {
         String username = startWithBearer(request, jwtTokenUtil);
-        User user = userRepository.findByUsername(username);
+        User user = userService.findByUsername(username);
         if (!(user.getRole().equals(STAFF) || user.getRole().equals(ADMIN))) {
             throw new InvalidPermissionsException();
         }
     }
 
-    public static void validateRoleCourier(HttpServletRequest request, JwtToken jwtTokenUtil, UserRepository userRepository) {
-        validateRole(request, jwtTokenUtil, userRepository, COURIER);
+    public static void validateRoleCourier(HttpServletRequest request, JwtToken jwtTokenUtil, UserService userService) {
+        validateRole(request, jwtTokenUtil, userService, COURIER);
     }
 
-    private static void validateRole(HttpServletRequest request, JwtToken jwtTokenUtil, UserRepository userRepository, RoleEnum role) {
+    private static void validateRole(HttpServletRequest request, JwtToken jwtTokenUtil, UserService userService, RoleEnum role) {
         String username = startWithBearer(request, jwtTokenUtil);
-        User user = userRepository.findByUsername(username);
+        User user = userService.findByUsername(username);
         if (!user.getRole().equals(role)) {
             throw new InvalidPermissionsException();
         }
     }
 
-    public static void validateNotDisabled(HttpServletRequest request, JwtToken jwtTokenUtil, UserRepository userRepository) {
+    public static void validateNotDisabled(HttpServletRequest request, JwtToken jwtTokenUtil, UserService userService) {
         String username = startWithBearer(request, jwtTokenUtil);
-        User user = userRepository.findByUsername(username);
+        User user = userService.findByUsername(username);
         if (user.getRole().equals(DISABLED)) {
             throw new UserDisabledException();
         }

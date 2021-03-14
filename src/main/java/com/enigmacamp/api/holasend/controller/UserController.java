@@ -59,15 +59,15 @@ public class UserController {
 
     private ResponseMessage<UserResponse> changeRole(String username, String token, RoleEnum role) {
         if (token != null && token.startsWith("Bearer ")) {
-            User user = repository.findByUsername(username);
+            User user = service.findByUsername(username);
             token = token.substring(7);
             String loggedInUsername = jwtTokenUtil.getUsernameFromToken(token);
-            User loggedInUser = repository.findByUsername(loggedInUsername);
+            User loggedInUser = service.findByUsername(loggedInUsername);
 
             validateAdmin(loggedInUser, user);
 
             user.setRole(role);
-            repository.save(user);
+            service.save(user);
 
             UserResponse data = modelMapper.map(user, UserResponse.class);
             return ResponseMessage.success(data);
@@ -79,7 +79,7 @@ public class UserController {
     public ResponseMessage<UserResponse> addWithUser(
             @RequestBody @Valid UserWithUserDetailsRequest model
     ) {
-        if (repository.existsByUsername(model.getUser().getUsername())) {
+        if (service.existsByUsername(model.getUser().getUsername())) {
             throw new UsernameExistException();
         }
 
@@ -92,7 +92,7 @@ public class UserController {
         user.setPassword(hashPassword);
         user.setRole(UNASSIGNED);
 
-        repository.save(user);
+        service.save(user);
 
         UserResponse data = modelMapper.map(user, UserResponse.class);
         return ResponseMessage.success(data);
@@ -142,7 +142,7 @@ public class UserController {
     ) {
         String username = jwtTokenUtil.getUsernameFromToken(token);
 
-        User user = repository.findByUsername(username);
+        User user = service.findByUsername(username);
 
         if (!token.equals(user.getToken()))
             throw new InvalidCredentialsException();
@@ -152,7 +152,7 @@ public class UserController {
 
         user.setToken(null);
         user.setPassword(encodedPassword);
-        repository.save(user);
+        service.save(user);
         UserResponse data = modelMapper.map(user, UserResponse.class);
 
         return ResponseMessage.success(data);
@@ -162,7 +162,7 @@ public class UserController {
     public ResponseMessage<UserResponse> findById(
             HttpServletRequest request
     ) {
-        validateNotDisabled(request, jwtTokenUtil, repository);
+        validateNotDisabled(request, jwtTokenUtil, service);
         String token = request.getHeader("Authorization");
 
         if (token != null && token.startsWith("Bearer ")) {
@@ -170,7 +170,7 @@ public class UserController {
 
             String username = jwtTokenUtil.getUsernameFromToken(token);
 
-            User user = repository.findByUsername(username);
+            User user = service.findByUsername(username);
 
             if(user != null) {
                 UserResponse data = modelMapper.map(user, UserResponse.class);
@@ -185,7 +185,7 @@ public class UserController {
     public ResponseMessage<List<UserResponse>> findAll(
             HttpServletRequest request
     ) {
-        validateRoleAdmin(request, jwtTokenUtil, repository);
+        validateRoleAdmin(request, jwtTokenUtil, service);
         List<User> entities = service.findAll();
         List<UserResponse> responses = entities.stream()
                 .map(e -> modelMapper.map(e, UserResponse.class))
@@ -199,7 +199,7 @@ public class UserController {
             @Valid UserSearch model,
             HttpServletRequest request
     ) {
-        validateRoleAdmin(request, jwtTokenUtil, repository);
+        validateRoleAdmin(request, jwtTokenUtil, service);
         User search = modelMapper.map(model, User.class);
 
         Page<User> entityPage = service.findAll(

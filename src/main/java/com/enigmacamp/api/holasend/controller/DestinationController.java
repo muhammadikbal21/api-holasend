@@ -9,8 +9,8 @@ import com.enigmacamp.api.holasend.models.entitymodels.request.DestinationReques
 import com.enigmacamp.api.holasend.models.entitymodels.response.DestinationResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.DestinationSearch;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
-import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.DestinationService;
+import com.enigmacamp.api.holasend.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,17 +35,17 @@ public class DestinationController {
     private ModelMapper modelMapper;
 
     @Autowired
-    private UserRepository repository;
+    private UserService userService;
 
     @Autowired
     private JwtToken jwtTokenUtil;
 
     private void validateAdmin(HttpServletRequest request) {
-        validateRoleAdmin(request, jwtTokenUtil, repository);
+        validateRoleAdmin(request, jwtTokenUtil, userService);
     }
 
     private void validateAdminOrStaff(HttpServletRequest request) {
-        validateRoleAdminOrStaff(request, jwtTokenUtil, repository);
+        validateRoleAdminOrStaff(request, jwtTokenUtil, userService);
     }
 
     @GetMapping("/{id}")

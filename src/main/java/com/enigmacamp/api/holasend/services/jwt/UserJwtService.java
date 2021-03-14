@@ -1,6 +1,7 @@
 package com.enigmacamp.api.holasend.services.jwt;
 
 import com.enigmacamp.api.holasend.entities.User;
+import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +22,7 @@ public class UserJwtService implements UserDetailsService {
 
         User user = repository.findByUsername(username);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
+            throw new InvalidCredentialsException();
         }
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 new ArrayList<>());
