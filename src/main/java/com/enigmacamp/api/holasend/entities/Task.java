@@ -30,13 +30,22 @@ public class Task extends AbstractEntity<String>{
     @JoinColumn(name = "courier")
     private User courier;
 
+    @Column(name = "pickup_up_time")
     private LocalDateTime pickUpTime;
 
+    @Column(name = "delivered_time")
     private LocalDateTime deliveredTime;
 
+    @Enumerated
+    @Column
     private TaskStatusEnum status;
 
+    @Enumerated
+    @Column
     private PriorityEnum priority;
+
+    @Column
+    private String notes;
 
     @Override
     public String getId() {
