@@ -21,7 +21,8 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.*;
+import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.validateRoleAdmin;
+import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.validateRoleAdminOrStaff;
 
 @RequestMapping("/destinations")
 @RestController
