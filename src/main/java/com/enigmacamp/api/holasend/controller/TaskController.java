@@ -10,6 +10,7 @@ import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
+import com.enigmacamp.api.holasend.repositories.TaskRepository;
 import com.enigmacamp.api.holasend.services.DestinationService;
 import com.enigmacamp.api.holasend.services.TaskService;
 import com.enigmacamp.api.holasend.services.UserService;
@@ -61,6 +62,10 @@ public class TaskController {
 
     private void validateCourier(HttpServletRequest request) {
         validateRoleCourier(request, jwtTokenUtil, userService);
+    }
+
+    private void validateMinimumCourier(HttpServletRequest request) {
+        validateRoleMinimumCourier(request, jwtTokenUtil, userService);
     }
 
     private User findUser(HttpServletRequest request) {
@@ -161,5 +166,18 @@ public class TaskController {
         );
 
         return ResponseMessage.success(data);
+    }
+
+    @GetMapping("/waiting")
+    public ResponseMessage<List<TaskResponse>> findAllWaitingTask(
+            HttpServletRequest request
+    ) {
+        validateMinimumCourier(request);
+        List<Task> entities = service.findAllWaitingTask(WAITING.ordinal());
+        List<TaskResponse> responses = entities.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
+                .collect(Collectors.toList());
+
+        return ResponseMessage.success(responses);
     }
 }

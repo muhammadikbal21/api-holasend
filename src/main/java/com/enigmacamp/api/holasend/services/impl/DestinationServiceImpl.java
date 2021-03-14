@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DestinationServiceImpl extends CommonServiceImpl<Destination, String> implements DestinationService {
 
@@ -20,5 +22,10 @@ public class DestinationServiceImpl extends CommonServiceImpl<Destination, Strin
     @Override
     public Destination findByName(String name) {
         return repository.findByName(name);
+    }
+
+    @Override
+    public List<Destination> test() {
+        return repository.test();
     }
 }

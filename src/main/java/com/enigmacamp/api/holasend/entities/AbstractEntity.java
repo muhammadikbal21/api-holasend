@@ -19,7 +19,7 @@ public abstract class AbstractEntity<ID> {
     private LocalDateTime modifiedDate;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean isDeleted = false;
 
     public abstract ID getId();
 

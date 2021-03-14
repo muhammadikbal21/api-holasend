@@ -4,6 +4,7 @@ import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.CourierActivity;
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
+import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.CourierActivityWithListOfTaskModel;
 import com.enigmacamp.api.holasend.models.entitymodels.ListOfIdModel;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.*;
+import static com.enigmacamp.api.holasend.enums.TaskStatusEnum.PICKUP;
 
 @RestController
 @RequestMapping("/courier-activity")
@@ -78,6 +80,7 @@ public class CourierActivityController {
                 task -> {
                     task.setPickUpTime(time);
                     task.setCourier(courier);
+                    task.setStatus(PICKUP);
                     task = taskService.save(task);
                 }
         );
