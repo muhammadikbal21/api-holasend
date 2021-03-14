@@ -99,7 +99,7 @@ public class UserDetailsController {
 
     @GetMapping
     public ResponseMessage<PagedList<UserDetailsResponse>> findAll(
-            @Valid UserDetailsSearch model,
+            UserDetailsSearch model,
             HttpServletRequest request
     ) {
         validateRoleAdmin(request, jwtTokenUtil, userService);

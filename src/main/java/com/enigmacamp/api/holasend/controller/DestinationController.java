@@ -129,7 +129,7 @@ public class DestinationController {
 
     @GetMapping
     public ResponseMessage<PagedList<DestinationResponse>> findAll(
-            @Valid DestinationSearch model,
+            DestinationSearch model,
             HttpServletRequest request
             ) {
         validateAdminOrStaff(request);
@@ -140,12 +140,12 @@ public class DestinationController {
         );
         List<Destination> entities = entityPage.toList();
 
-        List<DestinationResponse> models = entities.stream()
+        List<DestinationResponse> response = entities.stream()
                 .map(e -> modelMapper.map(e, DestinationResponse.class))
                 .collect(Collectors.toList());
 
         PagedList<DestinationResponse> data = new PagedList<>(
-                models,
+                response,
                 entityPage.getNumber(),
                 entityPage.getSize(),
                 entityPage.getTotalElements()

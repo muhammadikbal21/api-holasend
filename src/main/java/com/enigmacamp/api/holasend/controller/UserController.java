@@ -95,7 +95,7 @@ public class UserController {
     }
 
 
-    @GetMapping("/{username}/disable-user")
+    @PutMapping("/{username}/disable-user")
     public ResponseMessage<UserResponse> makeUnassigned(
             @PathVariable String username,
             HttpServletRequest request
@@ -104,7 +104,7 @@ public class UserController {
         return changeRole(username, token, DISABLED);
     }
 
-    @GetMapping("/{username}/make-courier")
+    @PutMapping("/{username}/make-courier")
     public ResponseMessage<UserResponse> makeCourier(
             @PathVariable String username,
             HttpServletRequest request
@@ -113,7 +113,7 @@ public class UserController {
         return changeRole(username, token, COURIER);
     }
 
-    @GetMapping("/{username}/make-staff")
+    @PutMapping("/{username}/make-staff")
     public ResponseMessage<UserResponse> makeStaff(
             @PathVariable String username,
             HttpServletRequest request
@@ -122,7 +122,7 @@ public class UserController {
         return changeRole(username, token, STAFF);
     }
 
-    @GetMapping("/{username}/make-admin")
+    @PutMapping("/{username}/make-admin")
     public ResponseMessage<UserResponse> makeAdmin(
             @PathVariable String username,
             HttpServletRequest request
@@ -192,7 +192,7 @@ public class UserController {
 
     @GetMapping
     public ResponseMessage<PagedList<UserResponse>> findAll(
-            @Valid UserSearch model,
+            UserSearch model,
             HttpServletRequest request
     ) {
         validateRoleAdmin(request, jwtTokenUtil, service);

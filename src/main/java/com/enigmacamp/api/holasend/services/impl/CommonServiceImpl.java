@@ -1,5 +1,6 @@
 package com.enigmacamp.api.holasend.services.impl;
 
+import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.services.CommonService;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,17 +25,16 @@ public abstract class CommonServiceImpl<T, ID> implements CommonService<T, ID> {
     @Override
     public T removeById(ID id) {
         T entity = findById(id);
-        if(entity != null) {
-            repository.deleteById(id);
-            return entity;
-        } else {
-            return null;
-        }
+        repository.deleteById(id);
+        return entity;
     }
 
     @Override
     public T findById(ID id) {
-        return repository.findById(id).orElse(null);
+        T entity =  repository.findById(id).orElse(null);
+        if (entity == null)
+            throw new EntityNotFoundException();
+        return entity;
     }
 
     @Override

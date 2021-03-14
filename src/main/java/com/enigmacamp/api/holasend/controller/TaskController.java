@@ -1,20 +1,181 @@
 package com.enigmacamp.api.holasend.controller;
 
 import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
-import com.enigmacamp.api.holasend.repositories.UserRepository;
+import com.enigmacamp.api.holasend.entities.Destination;
+import com.enigmacamp.api.holasend.entities.Task;
+import com.enigmacamp.api.holasend.entities.User;
+import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
+import com.enigmacamp.api.holasend.models.ResponseMessage;
+import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
+import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
+import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
+import com.enigmacamp.api.holasend.models.pagination.PagedList;
+import com.enigmacamp.api.holasend.services.DestinationService;
+import com.enigmacamp.api.holasend.services.TaskService;
+import com.enigmacamp.api.holasend.services.UserService;
+import com.enigmacamp.api.holasend.utils.TokenToUserConverter;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.*;
+import static com.enigmacamp.api.holasend.enums.TaskStatusEnum.*;
 
 @RestController
 @RequestMapping("/task")
 public class TaskController {
 
+    @Autowired
+    private TaskService service;
 
     @Autowired
-    private UserRepository repository;
+    private DestinationService destinationService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private JwtToken jwtTokenUtil;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Autowired
+    private TokenToUserConverter tokenUtil;
+
+    private void validateAdmin(HttpServletRequest request) {
+        validateRoleAdmin(request, jwtTokenUtil, userService);
+    }
+
+    private void validateAdminOrStaff(HttpServletRequest request) {
+        validateRoleAdminOrStaff(request, jwtTokenUtil, userService);
+    }
+
+    private void validateCourier(HttpServletRequest request) {
+        validateRoleCourier(request, jwtTokenUtil, userService);
+    }
+
+    private User findUser(HttpServletRequest request) {
+        return tokenUtil.convertToken(request, userService, jwtTokenUtil);
+    }
+
+    @PostMapping
+    public ResponseMessage<TaskResponse> add(
+            @RequestBody @Valid TaskRequest model,
+            HttpServletRequest request
+    ) {
+        validateAdminOrStaff(request);
+        Task entity = modelMapper.map(model, Task.class);
+        Destination destination = destinationService.findById(model.getDestinationId());
+        if (destination == null)
+            throw new EntityNotFoundException();
+
+        entity.setDestination(destination);
+
+        User user = findUser(request);
+        entity.setRequestBy(user);
+        entity.setStatus(WAITING);
+        entity = service.save(entity);
+
+        TaskResponse data = modelMapper.map(entity, TaskResponse.class);
+        return ResponseMessage.success(data);
+    }
+
+    @PutMapping("/assign/{id}")
+    public ResponseMessage<TaskResponse> pickUpTask(
+            @PathVariable String id,
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+        User courier = findUser(request);
+
+        Task entity = service.findById(id);
+        entity.setCourier(courier);
+        entity.setStatus(ASSIGNED);
+        service.save(entity);
+
+        TaskResponse data = modelMapper.map(entity, TaskResponse.class);
+
+        return ResponseMessage.success(data);
+    }
+
+    @PutMapping("/pickup/{id}")
+    public ResponseMessage<TaskResponse> deliverTask(
+            @PathVariable String id,
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+
+        Task entity = service.findById(id);
+        entity.setStatus(PICKUP);
+        entity.setPickUpTime(LocalDateTime.now());
+        service.save(entity);
+
+        TaskResponse data = modelMapper.map(entity, TaskResponse.class);
+        return ResponseMessage.success(data);
+    }
+
+    @PutMapping("/finish/{id}")
+    public ResponseMessage<TaskResponse> finishTask(
+            @PathVariable String id,
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+
+        Task entity = service.findById(id);
+        entity.setStatus(DELIVERED);
+        entity.setDeliveredTime(LocalDateTime.now());
+        service.save(entity);
+
+        TaskResponse data = modelMapper.map(entity, TaskResponse.class);
+        return ResponseMessage.success(data);
+    }
+
+    @GetMapping("/all")
+    public ResponseMessage<List<TaskResponse>> findAll(
+            HttpServletRequest request
+    ) {
+        validateAdmin(request);
+        List<Task> entities = service.findAll();
+        List<TaskResponse> responses = entities.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
+                .collect(Collectors.toList());
+
+        return ResponseMessage.success(responses);
+    }
+
+    @GetMapping
+    public ResponseMessage<PagedList<TaskResponse>> findAll(
+            TaskSearch model,
+            HttpServletRequest request
+    ) {
+        validateAdmin(request);
+        Task search = modelMapper.map(model, Task.class);
+
+        Page<Task> entityPage = service.findAll(
+                search, model.getPage(), model.getSize(), model.getSort()
+        );
+        List<Task> entities = entityPage.toList();
+
+        List<TaskResponse> responses = entities.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
+                .collect(Collectors.toList());
+
+        PagedList<TaskResponse> data = new PagedList<>(
+                responses,
+                entityPage.getNumber(),
+                entities.size(),
+                entityPage.getTotalElements()
+        );
+
+        return ResponseMessage.success(data);
+    }
 }

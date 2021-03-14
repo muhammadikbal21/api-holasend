@@ -1,7 +1,6 @@
 package com.enigmacamp.api.holasend.models.entitymodels.response;
 
 import com.enigmacamp.api.holasend.entities.Destination;
-import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.enums.PriorityEnum;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import lombok.Data;
@@ -13,11 +12,11 @@ public class TaskResponse {
 
     private String id;
 
-    private Destination destination;
+    private DestinationResponse destination;
 
-    private User requestBy;
+    private UserResponse requestBy;
 
-    private User courier;
+    private UserResponse courier;
 
     private LocalDateTime pickUpTime;
 
