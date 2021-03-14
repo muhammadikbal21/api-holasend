@@ -4,24 +4,19 @@ import com.enigmacamp.api.holasend.enums.PriorityEnum;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
 public class TaskRequest {
 
+    @NotNull
     private String destinationId;
 
-    private String requestById;
-
-    private String courierId;
-
-    private LocalDateTime pickUpTime;
-
-    private LocalDateTime deliveredTime;
-
-    private TaskStatusEnum status;
-
+    @NotNull
     private PriorityEnum priority;
 
+    @NotBlank
     private String notes;
 }
