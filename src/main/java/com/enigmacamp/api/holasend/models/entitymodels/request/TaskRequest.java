@@ -1,12 +1,10 @@
 package com.enigmacamp.api.holasend.models.entitymodels.request;
 
 import com.enigmacamp.api.holasend.enums.PriorityEnum;
-import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 @Data
 public class TaskRequest {

@@ -14,7 +14,6 @@ import com.enigmacamp.api.holasend.models.entitymodels.request.UserWithUserDetai
 import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.UserSearch;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
-import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.UserDetailsService;
 import com.enigmacamp.api.holasend.services.UserService;
 import org.modelmapper.ModelMapper;
@@ -36,9 +35,6 @@ import static com.enigmacamp.api.holasend.enums.RoleEnum.*;
 @RequestMapping("/user")
 @RestController
 public class UserController {
-
-    @Autowired
-    private UserRepository repository;
 
     @Autowired
     private UserDetailsService userDetailsService;
