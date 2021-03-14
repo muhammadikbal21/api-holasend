@@ -15,17 +15,17 @@ public class Destination extends AbstractEntity<String>{
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
 
-    @Column
+    @Column(unique = true)
     private String name;
 
     @Column
     private String address;
 
     @Column
-    private Float longitude;
+    private Float lon;
 
     @Column
-    private Float latitude;
+    private Float lat;
 
     @Override
     public String getId() {

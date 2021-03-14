@@ -20,6 +20,14 @@ public class RoleValidation {
         validateRole(request, jwtTokenUtil, userRepository, STAFF);
     }
 
+    public static void validateRoleAdminOrStaff(HttpServletRequest request, JwtToken jwtTokenUtil, UserRepository userRepository) {
+        String username = startWithBearer(request, jwtTokenUtil);
+        User user = userRepository.findByUsername(username);
+        if (!(user.getRole().equals(STAFF) || user.getRole().equals(ADMIN))) {
+            throw new InvalidPermissionsException();
+        }
+    }
+
     public static void validateRoleCourier(HttpServletRequest request, JwtToken jwtTokenUtil, UserRepository userRepository) {
         validateRole(request, jwtTokenUtil, userRepository, COURIER);
     }
@@ -42,7 +50,7 @@ public class RoleValidation {
 
     public static String startWithBearer(HttpServletRequest request, JwtToken jwtTokenUtil) {
         String token = request.getHeader("Authorization");
-        if (!token.startsWith("Bearer ")) {
+        if (token == null || !token.startsWith("Bearer ")) {
             throw new InvalidPermissionsException();
         }
         token = token.substring(7);
