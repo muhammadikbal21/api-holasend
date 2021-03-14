@@ -107,22 +107,6 @@ public class TaskController {
         return ResponseMessage.success(data);
     }
 
-    @PutMapping("/pickup/{id}")
-    public ResponseMessage<TaskResponse> deliverTask(
-            @PathVariable String id,
-            HttpServletRequest request
-    ) {
-        validateCourier(request);
-
-        Task entity = service.findById(id);
-        entity.setStatus(PICKUP);
-        entity.setPickUpTime(LocalDateTime.now());
-        service.save(entity);
-
-        TaskResponse data = modelMapper.map(entity, TaskResponse.class);
-        return ResponseMessage.success(data);
-    }
-
     @PutMapping("/finish/{id}")
     public ResponseMessage<TaskResponse> finishTask(
             @PathVariable String id,
