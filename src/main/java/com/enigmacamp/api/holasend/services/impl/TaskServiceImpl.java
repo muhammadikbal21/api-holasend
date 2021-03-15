@@ -19,7 +19,17 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     private TaskRepository repository;
 
     @Override
-    public List<Task> findAllWaitingTask(Integer statusEnumIndex) {
-        return repository.findAllWaitingTask(statusEnumIndex);
+    public List<Task> findAllWaitingTask() {
+        return repository.findAllWaitingTask();
+    }
+
+    @Override
+    public List<Task> findAllCourierUnfinishedTask(String courierId) {
+        return repository.findAllCourierUnfinishedTask(courierId);
+    }
+
+    @Override
+    public List<Task> findAllCourierTaskHistory(String courierId) {
+        return repository.findAllCourierTaskHistory(courierId);
     }
 }

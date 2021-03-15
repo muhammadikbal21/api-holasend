@@ -173,7 +173,35 @@ public class TaskController {
             HttpServletRequest request
     ) {
         validateMinimumCourier(request);
-        List<Task> entities = service.findAllWaitingTask(WAITING.ordinal());
+        List<Task> entities = service.findAllWaitingTask();
+        List<TaskResponse> responses = entities.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
+                .collect(Collectors.toList());
+
+        return ResponseMessage.success(responses);
+    }
+
+    @GetMapping("/my-task")
+    public ResponseMessage<List<TaskResponse>> findAllUnfinishedTask(
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+        User courier = findUser(request);
+        List<Task> entities = service.findAllCourierUnfinishedTask(courier.getId());
+        List<TaskResponse> responses = entities.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
+                .collect(Collectors.toList());
+
+        return ResponseMessage.success(responses);
+    }
+
+    @GetMapping("my-task-history")
+    public ResponseMessage<List<TaskResponse>> findMyTaskHistory(
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+        User courier = findUser(request);
+        List<Task> entities = service.findAllCourierTaskHistory(courier.getId());
         List<TaskResponse> responses = entities.stream()
                 .map(e -> modelMapper.map(e, TaskResponse.class))
                 .collect(Collectors.toList());

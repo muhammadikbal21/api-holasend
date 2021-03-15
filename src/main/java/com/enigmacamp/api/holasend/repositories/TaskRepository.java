@@ -12,13 +12,23 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, String> {
 
     @Query(value = "SELECT * FROM task " +
-            "WHERE status = :statusEnum",
+            "WHERE status = 0",
             nativeQuery = true)
-    List<Task> findAllWaitingTask(
-            @Param("statusEnum") Integer statusEnumIndex
+    List<Task> findAllWaitingTask();
+
+    @Query(value = "SELECT * FROM task " +
+            "WHERE courier = :courierId " +
+            "AND (status = 1 OR status = 2)",
+            nativeQuery = true)
+    List<Task> findAllCourierUnfinishedTask(
+            @Param("courierId") String courierId
     );
 
-//    public List<Task> findAllCourierUnfinishedTask();
-//
-//    public List<Task> findAllCourierTaskHistory();
+    @Query(value = "SELECT * FROM task " +
+            "WHERE courier = :courierId " +
+            "AND status = 3",
+            nativeQuery = true)
+    List<Task> findAllCourierTaskHistory(
+            @Param("courierId") String courierId
+    );
 }
