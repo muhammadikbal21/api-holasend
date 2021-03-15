@@ -11,7 +11,6 @@ import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
-import com.enigmacamp.api.holasend.repositories.TaskRepository;
 import com.enigmacamp.api.holasend.services.DestinationService;
 import com.enigmacamp.api.holasend.services.TaskService;
 import com.enigmacamp.api.holasend.services.UserService;
@@ -202,7 +201,7 @@ public class TaskController {
         return ResponseMessage.success(responses);
     }
 
-    @GetMapping("/my-task")
+    @GetMapping("/my-task/unfinished")
     public ResponseMessage<List<TaskResponse>> findAllUnfinishedTask(
             HttpServletRequest request
     ) {
@@ -216,13 +215,41 @@ public class TaskController {
         return ResponseMessage.success(responses);
     }
 
-    @GetMapping("my-task-history")
-    public ResponseMessage<List<TaskResponse>> findMyTaskHistory(
+    @GetMapping("/my-task/finished")
+    public ResponseMessage<List<TaskResponse>> findAllFinishedTask(
             HttpServletRequest request
     ) {
         validateCourier(request);
         User courier = findUser(request);
         List<Task> entities = service.findAllCourierTaskHistory(courier.getId());
+        List<TaskResponse> responses = entities.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
+                .collect(Collectors.toList());
+
+        return ResponseMessage.success(responses);
+    }
+
+    @GetMapping("/my-request/unfinished")
+    public ResponseMessage<List<TaskResponse>> findAllUnfinishedRequestedTask(
+            HttpServletRequest request
+    ) {
+        validateAdminOrStaff(request);
+        User user = findUser(request);
+        List<Task> entities = service.findAllUnfinishedRequestTask(user.getId());
+        List<TaskResponse> responses = entities.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
+                .collect(Collectors.toList());
+
+        return ResponseMessage.success(responses);
+    }
+
+    @GetMapping("/my-request/finished")
+    public ResponseMessage<List<TaskResponse>> findAllFinishedRequestedTask(
+            HttpServletRequest request
+    ) {
+        validateAdminOrStaff(request);
+        User user = findUser(request);
+        List<Task> entities = service.findAllFinishedRequestTask(user.getId());
         List<TaskResponse> responses = entities.stream()
                 .map(e -> modelMapper.map(e, TaskResponse.class))
                 .collect(Collectors.toList());

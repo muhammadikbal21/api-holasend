@@ -32,4 +32,14 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     public List<Task> findAllCourierTaskHistory(String courierId) {
         return repository.findAllCourierTaskHistory(courierId);
     }
+
+    @Override
+    public List<Task> findAllUnfinishedRequestTask(String userId) {
+        return repository.findAllUnfinishedRequestTask(userId);
+    }
+
+    @Override
+    public List<Task> findAllFinishedRequestTask(String userId) {
+        return repository.findAllFinishedRequestTask(userId);
+    }
 }

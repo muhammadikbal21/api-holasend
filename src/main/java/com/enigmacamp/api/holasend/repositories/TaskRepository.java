@@ -31,4 +31,20 @@ public interface TaskRepository extends JpaRepository<Task, String> {
     List<Task> findAllCourierTaskHistory(
             @Param("courierId") String courierId
     );
+
+    @Query(value = "SELECT * FROM task " +
+            "WHERE request_by = :userId " +
+            "AND status != 3",
+            nativeQuery = true)
+    List<Task> findAllUnfinishedRequestTask(
+            @Param("userId") String userId
+    );
+
+    @Query(value = "SELECT * FROM task " +
+            "WHERE request_by = :userId " +
+            "AND status = 3",
+            nativeQuery = true)
+    List<Task> findAllFinishedRequestTask(
+            @Param("userId") String userId
+    );
 }
