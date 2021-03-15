@@ -57,6 +57,9 @@ public class UserController {
     private ResponseMessage<UserResponse> changeRole(String username, String token, RoleEnum role) {
         if (token != null && token.startsWith("Bearer ")) {
             User user = service.findByUsername(username);
+            if (user == null)
+                throw new EntityNotFoundException();
+
             token = token.substring(7);
             String loggedInUsername = jwtTokenUtil.getUsernameFromToken(token);
             User loggedInUser = service.findByUsername(loggedInUsername);

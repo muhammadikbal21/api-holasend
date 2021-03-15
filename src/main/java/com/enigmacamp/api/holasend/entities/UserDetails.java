@@ -17,7 +17,7 @@ public class UserDetails extends AbstractEntity<String> {
     private String id;
 
     @Enumerated
-    @Column
+    @Column(name = "identity_category")
     private IdentityCategoryEnum identityCategory;
 
     @Column(name = "identification_number")

@@ -6,6 +6,8 @@ import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
+import com.enigmacamp.api.holasend.exceptions.TaskDeliveredException;
+import com.enigmacamp.api.holasend.exceptions.TaskDidntStartedException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.elements.TaskElement;
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
@@ -104,9 +106,12 @@ public class TaskController {
         User courier = findUser(request);
 
         Task entity = service.findById(id);
+        if (entity.getStatus().equals(DELIVERED) || entity.getStatus().equals(PICKUP))
+            throw new TaskDeliveredException();
+
         if (!entity.getCourier().equals(courier))
             throw new InvalidPermissionsException();
-
+        entity.setCourier(null);
         entity.setStatus(WAITING);
         service.save(entity);
 
@@ -141,6 +146,9 @@ public class TaskController {
         validateCourier(request);
 
         Task entity = service.findById(id);
+        if (entity.getPickUpTime() == null)
+            throw new TaskDidntStartedException();
+
         entity.setStatus(DELIVERED);
         entity.setDeliveredTime(LocalDateTime.now());
         service.save(entity);
