@@ -1,5 +1,7 @@
 package com.enigmacamp.api.holasend.configs.jwt;
 
+import com.enigmacamp.api.holasend.exceptions.PathNotFoundException;
+import com.enigmacamp.api.holasend.exceptions.TokenExpiredException;
 import com.enigmacamp.api.holasend.services.jwt.UserJwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 System.out.println("Unable to get JWT Token");
             } catch (ExpiredJwtException e) {
                 System.out.println("JWT Token has expired");
+                throw new TokenExpiredException();
             }
 
         } else {
