@@ -155,7 +155,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseMessage<UserResponse> findById(
+    public ResponseMessage<UserResponse> me(
             HttpServletRequest request
     ) {
         validateNotDisabled(request, jwtTokenUtil, service);
@@ -170,6 +170,31 @@ public class UserController {
 
             if(user != null) {
                 UserResponse data = modelMapper.map(user, UserResponse.class);
+                return ResponseMessage.success(data);
+            }
+        }
+        throw new EntityNotFoundException();
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseMessage<UserResponse> findById(
+            @PathVariable String id,
+            HttpServletRequest request
+    ) {
+        validateNotDisabled(request, jwtTokenUtil, service);
+        String token = request.getHeader("Authorization");
+
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+
+            String username = jwtTokenUtil.getUsernameFromToken(token);
+
+            User loggedInUser = service.findByUsername(username);
+
+            User user = service.findById(id);
+            UserResponse data = modelMapper.map(user, UserResponse.class);
+            if (loggedInUser.getId().equals(id) || loggedInUser.getRole().equals(ADMIN)) {
                 return ResponseMessage.success(data);
             }
         }

@@ -1,6 +1,5 @@
 package com.enigmacamp.api.holasend.configs.jwt;
 
-import com.enigmacamp.api.holasend.exceptions.PathNotFoundException;
 import com.enigmacamp.api.holasend.exceptions.TokenExpiredException;
 import com.enigmacamp.api.holasend.services.jwt.UserJwtService;
 import io.jsonwebtoken.ExpiredJwtException;

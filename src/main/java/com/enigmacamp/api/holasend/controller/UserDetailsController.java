@@ -3,6 +3,7 @@ package com.enigmacamp.api.holasend.controller;
 import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.entities.UserDetails;
+import com.enigmacamp.api.holasend.enums.RoleEnum;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserDetailsRequest;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.validateRoleAdmin;
+import static com.enigmacamp.api.holasend.enums.RoleEnum.ADMIN;
 
 @RequestMapping("/user-details")
 @RestController
@@ -48,11 +50,12 @@ public class UserDetailsController {
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             String username = jwtTokenUtil.getUsernameFromToken(token);
-            User user = userService.findByUsername(username);
+            User loggedInUser = userService.findByUsername(username);
+            UserDetails userDetails = service.findById(id);
 
-            UserDetailsResponse data = modelMapper.map(user.getUserDetails(), UserDetailsResponse.class);
+            UserDetailsResponse data = modelMapper.map(userDetails, UserDetailsResponse.class);
 
-            if (user.getUserDetails().getId().equals(id)) {
+            if (loggedInUser.getUserDetails().getId().equals(id) || loggedInUser.getRole().equals(ADMIN)) {
                 return ResponseMessage.success(data);
             }
         }
