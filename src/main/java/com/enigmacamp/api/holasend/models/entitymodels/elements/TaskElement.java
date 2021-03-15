@@ -1,27 +1,24 @@
-package com.enigmacamp.api.holasend.models.entitymodels.response;
+package com.enigmacamp.api.holasend.models.entitymodels.elements;
 
 import com.enigmacamp.api.holasend.enums.PriorityEnum;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
+import com.enigmacamp.api.holasend.models.entitymodels.response.CourierActivityResponse;
+import com.enigmacamp.api.holasend.models.entitymodels.response.DestinationResponse;
+import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
-public class TaskResponse {
+public class TaskElement {
 
     private String id;
 
     private DestinationResponse destination;
 
-    private UserResponse requestBy;
-
-    private UserResponse courier;
-
     private LocalDateTime pickUpTime;
 
     private LocalDateTime deliveredTime;
-
-    private CourierActivityResponse courierActivity;
 
     private TaskStatusEnum status;
 

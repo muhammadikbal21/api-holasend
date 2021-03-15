@@ -9,6 +9,7 @@ import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
 import com.enigmacamp.api.holasend.exceptions.UsernameExistException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
+import com.enigmacamp.api.holasend.models.entitymodels.elements.UserElement;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserChangePasswordRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserWithUserDetailsRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
@@ -216,7 +217,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseMessage<PagedList<UserResponse>> findAll(
+    public ResponseMessage<PagedList<UserElement>> findAll(
             UserSearch model,
             HttpServletRequest request
     ) {
@@ -228,11 +229,11 @@ public class UserController {
         );
         List<User> entities = entityPage.toList();
 
-        List<UserResponse> models = entities.stream()
-                .map(e -> modelMapper.map(e, UserResponse.class))
+        List<UserElement> models = entities.stream()
+                .map(e -> modelMapper.map(e, UserElement.class))
                 .collect(Collectors.toList());
 
-        PagedList<UserResponse> data = new PagedList<>(
+        PagedList<UserElement> data = new PagedList<>(
                 models,
                 entityPage.getNumber(),
                 entityPage.getSize(),

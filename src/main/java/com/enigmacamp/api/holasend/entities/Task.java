@@ -36,6 +36,10 @@ public class Task extends AbstractEntity<String>{
     @Column(name = "delivered_time")
     private LocalDateTime deliveredTime;
 
+    @ManyToOne
+    @JoinColumn(name = "courier_activity_id")
+    private CourierActivity courierActivity;
+
     @Enumerated
     @Column
     private TaskStatusEnum status;

@@ -153,9 +153,4 @@ public class DestinationController {
 
         return ResponseMessage.success(data);
     }
-
-    @GetMapping("/test")
-    public List<Destination> test() {
-        return service.test();
-    }
 }

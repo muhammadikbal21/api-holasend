@@ -7,6 +7,7 @@ import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
+import com.enigmacamp.api.holasend.models.entitymodels.elements.TaskElement;
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
@@ -162,7 +163,7 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseMessage<PagedList<TaskResponse>> findAll(
+    public ResponseMessage<PagedList<TaskElement>> findAll(
             TaskSearch model,
             HttpServletRequest request
     ) {
@@ -174,11 +175,11 @@ public class TaskController {
         );
         List<Task> entities = entityPage.toList();
 
-        List<TaskResponse> responses = entities.stream()
-                .map(e -> modelMapper.map(e, TaskResponse.class))
+        List<TaskElement> responses = entities.stream()
+                .map(e -> modelMapper.map(e, TaskElement.class))
                 .collect(Collectors.toList());
 
-        PagedList<TaskResponse> data = new PagedList<>(
+        PagedList<TaskElement> data = new PagedList<>(
                 responses,
                 entityPage.getNumber(),
                 entities.size(),

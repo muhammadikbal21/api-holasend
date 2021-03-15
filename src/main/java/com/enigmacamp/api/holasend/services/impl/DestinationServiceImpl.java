@@ -23,9 +23,4 @@ public class DestinationServiceImpl extends CommonServiceImpl<Destination, Strin
     public Destination findByName(String name) {
         return repository.findByName(name);
     }
-
-    @Override
-    public List<Destination> test() {
-        return repository.test();
-    }
 }
