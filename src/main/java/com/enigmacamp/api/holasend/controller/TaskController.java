@@ -5,6 +5,7 @@ import com.enigmacamp.api.holasend.entities.Destination;
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
+import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
@@ -94,8 +95,28 @@ public class TaskController {
         return ResponseMessage.success(data);
     }
 
+    @PutMapping("/assign/cancel/{id}")
+    public ResponseMessage<TaskResponse> cancelAssignTask(
+            @PathVariable String id,
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+        User courier = findUser(request);
+
+        Task entity = service.findById(id);
+        if (!entity.getCourier().equals(courier))
+            throw new InvalidPermissionsException();
+
+        entity.setStatus(WAITING);
+        service.save(entity);
+
+        TaskResponse data = modelMapper.map(entity, TaskResponse.class);
+
+        return ResponseMessage.success(data);
+    }
+
     @PutMapping("/assign/{id}")
-    public ResponseMessage<TaskResponse> pickUpTask(
+    public ResponseMessage<TaskResponse> assignTask(
             @PathVariable String id,
             HttpServletRequest request
     ) {
