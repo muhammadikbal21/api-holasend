@@ -1,17 +1,20 @@
 package com.enigmacamp.api.holasend.models.entitymodels;
 
-import com.enigmacamp.api.holasend.models.entitymodels.response.CourierActivityResponse;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
-import lombok.AllArgsConstructor;
+import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@AllArgsConstructor
 @Data
 public class CourierActivityWithListOfTaskModel {
 
-    private CourierActivityResponse courierActivity;
-
+    private String id;
+    private UserResponse courier;
+    private LocalDate date;
+    private LocalDateTime leavingTime;
+    private LocalDateTime returnTime;
     private List<TaskResponse> taskList;
 }

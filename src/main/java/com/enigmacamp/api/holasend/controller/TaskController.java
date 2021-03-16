@@ -151,6 +151,9 @@ public class TaskController {
         if (entity.getPickUpTime() == null)
             throw new TaskDidntStartedException();
 
+        if (entity.getStatus().equals(DELIVERED))
+            throw new TaskDeliveredException();
+
         entity.setStatus(DELIVERED);
         entity.setDeliveredTime(LocalDateTime.now());
         service.save(entity);
