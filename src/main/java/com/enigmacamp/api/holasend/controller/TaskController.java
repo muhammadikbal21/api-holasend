@@ -4,6 +4,7 @@ import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.Destination;
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
+import com.enigmacamp.api.holasend.enums.RoleEnum;
 import com.enigmacamp.api.holasend.exceptions.*;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.elements.TaskElement;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.*;
+import static com.enigmacamp.api.holasend.enums.RoleEnum.COURIER;
 import static com.enigmacamp.api.holasend.enums.TaskStatusEnum.*;
 
 @RestController
@@ -264,5 +266,17 @@ public class TaskController {
                 .collect(Collectors.toList());
 
         return ResponseMessage.success(responses);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseMessage<TaskResponse> findById(
+            @PathVariable String id,
+            HttpServletRequest request
+    ) {
+        validateMinimumCourier(request);
+        Task entity = service.findById(id);
+
+        TaskResponse data = modelMapper.map(entity, TaskResponse.class);
+        return ResponseMessage.success(data);
     }
 }

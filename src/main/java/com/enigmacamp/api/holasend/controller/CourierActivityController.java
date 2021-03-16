@@ -144,7 +144,6 @@ public class CourierActivityController {
         validateMinimumCourier(request);
         List<CourierActivity> activity = service.findAllActivityByCourierId(id);
 
-
         List<CourierActivityResponse> response = activity.stream()
                 .map(e -> modelMapper.map(e, CourierActivityResponse.class))
                 .collect(Collectors.toList());
