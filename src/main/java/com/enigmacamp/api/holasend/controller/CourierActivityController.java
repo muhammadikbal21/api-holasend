@@ -2,19 +2,14 @@ package com.enigmacamp.api.holasend.controller;
 
 import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.CourierActivity;
-import com.enigmacamp.api.holasend.entities.Destination;
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
-import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.CourierActivityWithListOfTaskModel;
-import com.enigmacamp.api.holasend.models.entitymodels.ListOfIdModel;
 import com.enigmacamp.api.holasend.models.entitymodels.elements.CourierActivityElement;
 import com.enigmacamp.api.holasend.models.entitymodels.response.CourierActivityResponse;
-import com.enigmacamp.api.holasend.models.entitymodels.response.DestinationResponse;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.CourierActivitySearch;
-import com.enigmacamp.api.holasend.models.entitysearch.DestinationSearch;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
 import com.enigmacamp.api.holasend.services.CourierActivityService;
 import com.enigmacamp.api.holasend.services.TaskService;
@@ -26,10 +21,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,25 +67,15 @@ public class CourierActivityController {
         return tokenUtil.convertToken(request, userService, jwtTokenUtil);
     }
 
-
-
     @PostMapping
     public ResponseMessage<CourierActivityWithListOfTaskModel> startActivity(
-            @RequestBody ListOfIdModel listOfId,
             HttpServletRequest request
     ) {
         validateCourier(request);
         User courier = findUser(request);
 
-        List<Task> taskList = new ArrayList<>();
+        List<Task> taskList = taskService.findAllUnfinishedTaskByCourierId(courier.getId());
         LocalDateTime time = LocalDateTime.now();
-
-        listOfId.getId().forEach(
-                id -> {
-                    Task task = taskService.findById(id);
-                    taskList.add(task);
-                }
-        );
 
         CourierActivity activity = new CourierActivity();
         activity.setCourier(courier);

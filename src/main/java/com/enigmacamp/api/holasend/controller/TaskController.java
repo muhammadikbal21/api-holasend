@@ -4,10 +4,7 @@ import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.Destination;
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
-import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
-import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
-import com.enigmacamp.api.holasend.exceptions.TaskDeliveredException;
-import com.enigmacamp.api.holasend.exceptions.TaskDidntStartedException;
+import com.enigmacamp.api.holasend.exceptions.*;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.elements.TaskElement;
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
@@ -129,6 +126,9 @@ public class TaskController {
         User courier = findUser(request);
 
         Task entity = service.findById(id);
+        if (entity.getCourier() != null)
+            throw new TaskHasTakenException();
+
         entity.setCourier(courier);
         entity.setStatus(ASSIGNED);
         service.save(entity);

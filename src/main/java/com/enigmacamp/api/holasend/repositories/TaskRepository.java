@@ -12,7 +12,16 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, String> {
 
     @Query(value = "SELECT * FROM task " +
-            "WHERE status = 0",
+            "WHERE courier = :courierId " +
+            "AND delivered_time IS NULL",
+            nativeQuery = true)
+    List<Task> findAllUnfinishedTaskByCourierId(
+            @Param("courierId") String courierId
+    );
+
+    @Query(value = "SELECT * FROM task " +
+            "WHERE status = 0 " +
+            "ORDER BY priority",
             nativeQuery = true)
     List<Task> findAllWaitingTask();
 
