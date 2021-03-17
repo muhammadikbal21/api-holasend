@@ -20,7 +20,7 @@ public interface CourierActivityRepository extends JpaRepository<CourierActivity
     );
 
     @Query(value = table +
-            "AND courier = :courierId " +
+            "AND courier_id = :courierId " +
             "AND return_time IS NULL " +
             "LIMIT 1",
             nativeQuery = true)
