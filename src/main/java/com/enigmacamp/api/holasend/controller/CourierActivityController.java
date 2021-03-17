@@ -4,6 +4,8 @@ import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.CourierActivity;
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
+import com.enigmacamp.api.holasend.exceptions.ActiveActivityException;
+import com.enigmacamp.api.holasend.exceptions.NoActiveActivityException;
 import com.enigmacamp.api.holasend.exceptions.ZeroUnfinishedTask;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.CourierActivityWithListOfTaskModel;
@@ -76,6 +78,11 @@ public class CourierActivityController {
         validateCourier(request);
         User courier = findUser(request);
 
+        CourierActivity activeActivity = service.findActiveCourierActivityByCourierId(courier.getId());
+
+        if (activeActivity != null)
+            throw new ActiveActivityException();
+
         List<Task> taskList = taskService.findAllUnfinishedTaskByCourierId(courier.getId());
 
         if (taskList.size() == 0)
@@ -127,6 +134,7 @@ public class CourierActivityController {
                     cancelledTask -> {
                         cancelledTask.setStatus(ASSIGNED);
                         cancelledTask.setCourierActivity(null);
+                        cancelledTask.setPickUpTime(null);
                         taskService.save(cancelledTask);
                     }
             );
@@ -215,6 +223,9 @@ public class CourierActivityController {
         User courier = findUser(request);
 
         CourierActivity activeActivity = service.findActiveCourierActivityByCourierId(courier.getId());
+
+        if (activeActivity == null)
+            throw new NoActiveActivityException();
 
         CourierActivityResponse data = modelMapper.map(activeActivity, CourierActivityResponse.class);
 
