@@ -24,8 +24,9 @@ public class DestinationServiceImpl extends CommonServiceImpl<Destination, Strin
     @Override
     public Destination findByName(String name) {
         Destination data = repository.findByName(name);
-        if (data.getIsDeleted())
-            throw new EntityNotFoundException();
+        if (data != null)
+            if (data.getIsDeleted())
+                throw new EntityNotFoundException();
         return data;
     }
 
