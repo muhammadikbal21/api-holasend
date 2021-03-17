@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.*;
+import static com.enigmacamp.api.holasend.enums.TaskStatusEnum.ASSIGNED;
 import static com.enigmacamp.api.holasend.enums.TaskStatusEnum.PICKUP;
 
 @RestController
@@ -120,6 +121,17 @@ public class CourierActivityController {
         activity.setReturnTime(LocalDateTime.now());
         activity = service.save(activity);
 
+        List<Task> cancelledTaskList = taskService.findAllPickedUpTaskByCourierActivityId(id);
+        if (cancelledTaskList.size() > 0) {
+            cancelledTaskList.forEach(
+                    cancelledTask -> {
+                        cancelledTask.setStatus(ASSIGNED);
+                        cancelledTask.setCourierActivity(null);
+                        taskService.save(cancelledTask);
+                    }
+            );
+        }
+
         CourierActivityResponse response =
                 modelMapper.map(activity, CourierActivityResponse.class);
 
@@ -191,6 +203,20 @@ public class CourierActivityController {
                 entityPage.getSize(),
                 entityPage.getTotalElements()
         );
+
+        return ResponseMessage.success(data);
+    }
+
+    @GetMapping("/active")
+    public ResponseMessage<CourierActivityResponse> findActiveCourierActivity(
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+        User courier = findUser(request);
+
+        CourierActivity activeActivity = service.findActiveCourierActivityByCourierId(courier.getId());
+
+        CourierActivityResponse data = modelMapper.map(activeActivity, CourierActivityResponse.class);
 
         return ResponseMessage.success(data);
     }

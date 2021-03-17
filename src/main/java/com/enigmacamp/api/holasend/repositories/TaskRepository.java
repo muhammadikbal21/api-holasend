@@ -56,4 +56,10 @@ public interface TaskRepository extends JpaRepository<Task, String> {
     List<Task> findAllFinishedRequestTask(
             @Param("userId") String userId
     );
+
+    @Query(value = "SELECT * FROM task " +
+            "WHERE courier_activity_id " +
+            "AND status = 2", nativeQuery = true)
+    List<Task> findAllPickedUpTaskByCourierActivityId(
+            @Param("activityId") String activityId);
 }

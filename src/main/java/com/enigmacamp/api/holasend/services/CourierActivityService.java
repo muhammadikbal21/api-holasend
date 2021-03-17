@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CourierActivityService extends CommonService<CourierActivity, String> {
     List<CourierActivity> findAllActivityByCourierId (String courierId);
+    CourierActivity findActiveCourierActivityByCourierId(String courierId);
 }

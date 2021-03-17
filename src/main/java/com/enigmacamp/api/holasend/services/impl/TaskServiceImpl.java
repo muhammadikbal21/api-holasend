@@ -47,4 +47,9 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     public List<Task> findAllFinishedRequestTask(String userId) {
         return repository.findAllFinishedRequestTask(userId);
     }
+
+    @Override
+    public List<Task> findAllPickedUpTaskByCourierActivityId(String activityId) {
+        return repository.findAllPickedUpTaskByCourierActivityId(activityId);
+    }
 }
