@@ -118,17 +118,17 @@ public class CourierActivityController {
         return ResponseMessage.success(data);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     public ResponseMessage<CourierActivityResponse> stopActivity(
-            @PathVariable String id,
             HttpServletRequest request
     ) {
         validateCourier(request);
-        CourierActivity activity = service.findById(id);
+        User courier = findUser(request);
+        CourierActivity activity = service.findActiveCourierActivityByCourierId(courier.getId());
         activity.setReturnTime(LocalDateTime.now());
         activity = service.save(activity);
 
-        List<Task> cancelledTaskList = taskService.findAllPickedUpTaskByCourierActivityId(id);
+        List<Task> cancelledTaskList = taskService.findAllPickedUpTaskByCourierActivityId(activity.getId());
         if (cancelledTaskList.size() > 0) {
             cancelledTaskList.forEach(
                     cancelledTask -> {
