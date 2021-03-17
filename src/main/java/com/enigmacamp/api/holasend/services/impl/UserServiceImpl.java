@@ -1,11 +1,15 @@
 package com.enigmacamp.api.holasend.services.impl;
 
 import com.enigmacamp.api.holasend.entities.User;
+import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends CommonServiceImpl<User, String> implements UserService {
@@ -16,9 +20,33 @@ public class UserServiceImpl extends CommonServiceImpl<User, String> implements 
     @Autowired
     private UserRepository repository;
 
+    public User removeById(String id) {
+        User entity = findById(id);
+        entity.setIsDeleted(true);
+        repository.save(entity);
+        return entity;
+    }
+
+    public User findById(String id) {
+        User entity =  repository.findById(id).orElse(null);
+        if (entity == null)
+            throw new EntityNotFoundException();
+        if (entity.getIsDeleted())
+            throw new EntityNotFoundException();
+        return entity;
+    }
+
+    public List<User> findAll() {
+        return repository.findAllNotDeleted();
+    }
+
+
     @Override
     public User findByUsername(String username) {
-        return repository.findByUsername(username);
+        User data = repository.findByUsername(username);
+        if (data.getIsDeleted())
+            throw new EntityNotFoundException();
+        return data;
     }
 
     @Override

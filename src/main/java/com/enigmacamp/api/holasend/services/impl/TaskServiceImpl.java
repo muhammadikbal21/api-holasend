@@ -1,6 +1,7 @@
 package com.enigmacamp.api.holasend.services.impl;
 
 import com.enigmacamp.api.holasend.entities.Task;
+import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.repositories.TaskRepository;
 import com.enigmacamp.api.holasend.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements TaskService {
@@ -17,6 +19,27 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
 
     @Autowired
     private TaskRepository repository;
+
+
+    public Task removeById(String id) {
+        Task entity = findById(id);
+        entity.setIsDeleted(true);
+        repository.save(entity);
+        return entity;
+    }
+
+    public Task findById(String id) {
+        Task entity =  repository.findById(id).orElse(null);
+        if (entity == null)
+            throw new EntityNotFoundException();
+        if (entity.getIsDeleted())
+            throw new EntityNotFoundException();
+        return entity;
+    }
+
+    public List<Task> findAll() {
+        return repository.findAllNotDeleted();
+    }
 
     @Override
     public List<Task> findAllUnfinishedTaskByCourierId(String courierId) {

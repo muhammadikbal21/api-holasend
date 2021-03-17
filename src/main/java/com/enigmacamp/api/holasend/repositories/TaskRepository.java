@@ -11,55 +11,60 @@ import java.util.List;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, String> {
 
-    @Query(value = "SELECT * FROM task " +
-            "WHERE courier = :courierId " +
+    String table = "SELECT * FROM task WHERE is_deleted = 0 ";
+
+    @Query(value = table +
+            "AND courier = :courierId " +
             "AND delivered_time IS NULL",
             nativeQuery = true)
     List<Task> findAllUnfinishedTaskByCourierId(
             @Param("courierId") String courierId
     );
 
-    @Query(value = "SELECT * FROM task " +
-            "WHERE status = 0 " +
+    @Query(value = table +
+            "AND status = 0 " +
             "ORDER BY priority",
             nativeQuery = true)
     List<Task> findAllWaitingTask();
 
-    @Query(value = "SELECT * FROM task " +
-            "WHERE courier = :courierId " +
+    @Query(value = table +
+            "AND courier = :courierId " +
             "AND (status = 1 OR status = 2)",
             nativeQuery = true)
     List<Task> findAllCourierUnfinishedTask(
             @Param("courierId") String courierId
     );
 
-    @Query(value = "SELECT * FROM task " +
-            "WHERE courier = :courierId " +
+    @Query(value = table +
+            "AND courier = :courierId " +
             "AND status = 3",
             nativeQuery = true)
     List<Task> findAllCourierTaskHistory(
             @Param("courierId") String courierId
     );
 
-    @Query(value = "SELECT * FROM task " +
-            "WHERE request_by = :userId " +
+    @Query(value = table +
+            "AND request_by = :userId " +
             "AND status != 3",
             nativeQuery = true)
     List<Task> findAllUnfinishedRequestTask(
             @Param("userId") String userId
     );
 
-    @Query(value = "SELECT * FROM task " +
-            "WHERE request_by = :userId " +
+    @Query(value = table +
+            "AND request_by = :userId " +
             "AND status = 3",
             nativeQuery = true)
     List<Task> findAllFinishedRequestTask(
             @Param("userId") String userId
     );
 
-    @Query(value = "SELECT * FROM task " +
-            "WHERE courier_activity_id " +
+    @Query(value = table +
+            "AND courier_activity_id " +
             "AND status = 2", nativeQuery = true)
     List<Task> findAllPickedUpTaskByCourierActivityId(
             @Param("activityId") String activityId);
+
+    @Query(value = table, nativeQuery = true)
+    List<Task> findAllNotDeleted();
 }

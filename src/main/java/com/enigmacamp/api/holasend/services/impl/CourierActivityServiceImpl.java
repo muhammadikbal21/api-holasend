@@ -1,6 +1,7 @@
 package com.enigmacamp.api.holasend.services.impl;
 
 import com.enigmacamp.api.holasend.entities.CourierActivity;
+import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.exceptions.NoActiveActivityException;
 import com.enigmacamp.api.holasend.repositories.CourierActivityRepository;
 import com.enigmacamp.api.holasend.services.CourierActivityService;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CourierActivityServiceImpl extends CommonServiceImpl<CourierActivity, String>implements CourierActivityService {
@@ -30,5 +32,25 @@ public class CourierActivityServiceImpl extends CommonServiceImpl<CourierActivit
         if (result == null)
             throw new NoActiveActivityException();
         return result;
+    }
+
+    public CourierActivity removeById(String id) {
+        CourierActivity entity = findById(id);
+        entity.setIsDeleted(true);
+        repository.save(entity);
+        return entity;
+    }
+
+    public CourierActivity findById(String id) {
+        CourierActivity entity =  repository.findById(id).orElse(null);
+        if (entity == null)
+            throw new EntityNotFoundException();
+        if (entity.getIsDeleted())
+            throw new EntityNotFoundException();
+        return entity;
+    }
+
+    public List<CourierActivity> findAll() {
+        return repository.findAllNotDeleted();
     }
 }

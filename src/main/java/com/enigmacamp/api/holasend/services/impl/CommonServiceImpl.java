@@ -23,26 +23,6 @@ public abstract class CommonServiceImpl<T, ID> implements CommonService<T, ID> {
     }
 
     @Override
-    public T removeById(ID id) {
-        T entity = findById(id);
-        repository.deleteById(id);
-        return entity;
-    }
-
-    @Override
-    public T findById(ID id) {
-        T entity =  repository.findById(id).orElse(null);
-        if (entity == null)
-            throw new EntityNotFoundException();
-        return entity;
-    }
-
-    @Override
-    public List<T> findAll() {
-        return repository.findAll();
-    }
-
-    @Override
     public Page<T> findAll(T search, int page, int size, Sort.Direction direction) {
         Sort sort = Sort.Direction.DESC.equals(direction) ? Sort.by(direction, "id") : Sort.by("id");
         ExampleMatcher matcher = ExampleMatcher.matchingAll()

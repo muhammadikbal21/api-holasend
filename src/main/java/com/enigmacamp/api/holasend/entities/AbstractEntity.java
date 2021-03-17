@@ -1,6 +1,7 @@
 package com.enigmacamp.api.holasend.entities;
 
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 
 @MappedSuperclass
 @Data
+@Where(clause = "is_deleted = 0")
 public abstract class AbstractEntity<ID> {
 
     @Column(name = "created_date")

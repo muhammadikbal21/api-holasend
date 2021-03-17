@@ -10,18 +10,22 @@ import java.util.List;
 
 @Repository
 public interface CourierActivityRepository extends JpaRepository<CourierActivity, String> {
+    String table = "SELECT * FROM courier_activity WHERE is_deleted = 0 ";
 
-    @Query(value = "SELECT * FROM courier_activity " +
-            "WHERE courier = :courierId",
+    @Query(value = table +
+            "AND courier = :courierId",
             nativeQuery = true)
     List<CourierActivity> findAllActivityByCourierId (
             @Param("courierId") String courierId
     );
 
-    @Query(value = "SELECT * FROM courier_activity " +
-            "WHERE courier = :courierId " +
+    @Query(value = table +
+            "AND courier = :courierId " +
             "AND return_time IS NULL " +
             "LIMIT 1",
             nativeQuery = true)
     CourierActivity findActiveCourierActivityByCourierId(String courierId);
+
+    @Query(value = table, nativeQuery = true)
+    List<CourierActivity> findAllNotDeleted();
 }
