@@ -1,5 +1,7 @@
 package com.enigmacamp.api.holasend.controller;
 
+import com.enigmacamp.api.holasend.configs.exporter.ReportModelMapper;
+import com.enigmacamp.api.holasend.configs.exporter.TaskReportExporter;
 import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.CourierActivity;
 import com.enigmacamp.api.holasend.entities.Destination;
@@ -12,6 +14,7 @@ import com.enigmacamp.api.holasend.models.entitymodels.elements.TaskElement;
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
+import com.enigmacamp.api.holasend.models.excel.TaskReportModel;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
 import com.enigmacamp.api.holasend.services.CourierActivityService;
 import com.enigmacamp.api.holasend.services.DestinationService;
@@ -24,9 +27,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import java.io.IOException;
+import java.sql.Date;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -293,5 +301,22 @@ public class TaskController {
 
         TaskResponse data = modelMapper.map(entity, TaskResponse.class);
         return ResponseMessage.success(data);
+    }
+
+    @GetMapping("/export")
+    public void exportToExcel(
+            HttpServletResponse response
+    ) throws IOException {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=Report.xlsx";
+
+        response.setHeader(headerKey, headerValue);
+        List<Task> taskList = service.findAll();
+
+        List<TaskReportModel> modelList = ReportModelMapper.convert(taskList);
+
+        TaskReportExporter exp = new TaskReportExporter(modelList);
+        exp.export(response);
     }
 }
