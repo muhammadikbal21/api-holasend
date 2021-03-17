@@ -1,6 +1,7 @@
 package com.enigmacamp.api.holasend.controller;
 
 import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
+import com.enigmacamp.api.holasend.entities.CourierActivity;
 import com.enigmacamp.api.holasend.entities.Destination;
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
@@ -12,6 +13,7 @@ import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
+import com.enigmacamp.api.holasend.services.CourierActivityService;
 import com.enigmacamp.api.holasend.services.DestinationService;
 import com.enigmacamp.api.holasend.services.TaskService;
 import com.enigmacamp.api.holasend.services.UserService;
@@ -41,6 +43,9 @@ public class TaskController {
 
     @Autowired
     private DestinationService destinationService;
+
+    @Autowired
+    private CourierActivityService courierActivityService;
 
     @Autowired
     private UserService userService;
@@ -126,6 +131,13 @@ public class TaskController {
     ) {
         validateCourier(request);
         User courier = findUser(request);
+
+        CourierActivity activity =
+                courierActivityService.findActiveCourierActivityByCourierId(courier.getId());
+
+        if (activity != null) {
+            throw new ActiveActivityException();
+        }
 
         Task entity = service.findById(id);
         if (entity.getCourier() != null)
