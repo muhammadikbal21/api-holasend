@@ -77,6 +77,11 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     }
 
     @Override
+    public List<Task> findByRange(String dateStart, String dateEnd) {
+        return repository.findByRange(dateStart, dateEnd);
+    }
+
+    @Override
     public Long countWaitingTask() {
         return repository.countByStatus(TaskStatusEnum.WAITING);
     }

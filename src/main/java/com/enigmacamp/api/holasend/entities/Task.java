@@ -30,7 +30,7 @@ public class Task extends AbstractEntity<String>{
     @JoinColumn(name = "courier")
     private User courier;
 
-    @Column(name = "pickup_up_time")
+    @Column(name = "pickup_time")
     private LocalDateTime pickUpTime;
 
     @Column(name = "delivered_time")

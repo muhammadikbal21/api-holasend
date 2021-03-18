@@ -21,6 +21,7 @@ public interface TaskService extends CommonService<Task, String> {
     List<Task> findAllUnfinishedRequestTask(String userId);
     List<Task> findAllFinishedRequestTask(String userId);
     List<Task> findAllPickedUpTaskByCourierActivityId(String activityId);
+    List<Task> findByRange(String dateStart, String dateEnd);
     Long countWaitingTask();
     Long countByCourier(String courierId, TaskStatusEnum status);
 }

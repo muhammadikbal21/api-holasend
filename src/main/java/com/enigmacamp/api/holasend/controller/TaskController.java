@@ -7,16 +7,17 @@ import com.enigmacamp.api.holasend.entities.CourierActivity;
 import com.enigmacamp.api.holasend.entities.Destination;
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
-import com.enigmacamp.api.holasend.enums.RoleEnum;
 import com.enigmacamp.api.holasend.exceptions.*;
 import com.enigmacamp.api.holasend.models.CountModel;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.elements.TaskElement;
+import com.enigmacamp.api.holasend.models.entitymodels.request.DateRangeRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 import com.enigmacamp.api.holasend.models.excel.TaskReportModel;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
+import com.enigmacamp.api.holasend.models.validations.DateTimeValidator;
 import com.enigmacamp.api.holasend.services.CourierActivityService;
 import com.enigmacamp.api.holasend.services.DestinationService;
 import com.enigmacamp.api.holasend.services.TaskService;
@@ -32,16 +33,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.*;
-import static com.enigmacamp.api.holasend.enums.RoleEnum.COURIER;
 import static com.enigmacamp.api.holasend.enums.TaskStatusEnum.*;
 
 @RestController
@@ -404,5 +401,30 @@ public class TaskController {
         );
 
         return ResponseMessage.success(count);
+    }
+
+    @GetMapping("/range")
+    public ResponseMessage<List<TaskResponse>> findByRange(
+            @Valid DateRangeRequest model,
+            HttpServletRequest request
+    ) {
+        validateAdmin(request);
+
+        Boolean validDateStart = DateTimeValidator.validate(model.getStart());
+        Boolean validDateEnd = DateTimeValidator.validate(model.getEnd());
+
+        if (!validDateStart || !validDateEnd)
+            throw new DateInvalidException();
+
+        List<Task> taskList = service.findByRange(
+                model.getStart(),
+                model.getEnd()
+        );
+
+        List<TaskResponse> data = taskList.stream().map(
+                e -> modelMapper.map(e, TaskResponse.class)
+        ).collect(Collectors.toList());
+
+        return ResponseMessage.success(data);
     }
 }

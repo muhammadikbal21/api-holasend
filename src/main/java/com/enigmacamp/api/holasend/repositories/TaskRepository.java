@@ -69,6 +69,15 @@ public interface TaskRepository extends JpaRepository<Task, String> {
     @Query(value = table, nativeQuery = true)
     List<Task> findAllNotDeleted();
 
+    @Query(value = table +
+            "AND created_date > :dateStart " +
+            "AND created_date < :dateEnd"
+    , nativeQuery = true)
+    List<Task> findByRange(
+            @Param("dateStart") String dateStart,
+            @Param("dateEnd") String dateEnd
+    );
+
     @Query(countQuery = "SELECT count(*) FROM task " +
             "WHERE is_deleted = 0 " +
             "AND status = :status",
