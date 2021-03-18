@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface DestinationService extends CommonService<Destination, String> {
 
-    public Destination removeById(String id);
+    Destination removeById(String id);
 
-    public Destination findById(String id);
+    Destination findById(String id);
 
-    public List<Destination> findAll();
+    List<Destination> findAll();
 
     Destination findByName(String name);
 }

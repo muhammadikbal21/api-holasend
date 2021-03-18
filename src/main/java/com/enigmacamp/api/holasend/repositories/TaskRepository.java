@@ -1,6 +1,7 @@
 package com.enigmacamp.api.holasend.repositories;
 
 import com.enigmacamp.api.holasend.entities.Task;
+import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -67,4 +68,20 @@ public interface TaskRepository extends JpaRepository<Task, String> {
 
     @Query(value = table, nativeQuery = true)
     List<Task> findAllNotDeleted();
+
+    @Query(countQuery = "SELECT count(*) FROM task " +
+            "WHERE is_deleted = 0 " +
+            "AND status = :status",
+            nativeQuery = true)
+    Long countByStatus(
+            @Param("status") TaskStatusEnum status);
+
+    @Query(countQuery = "SELECT count(*) FROM task " +
+            "WHERE is_deleted = 0 " +
+            "AND status = :status " +
+            "AND courier_id = :courierId "
+    , nativeQuery = true)
+    Long countByCourierIdAndStatus(
+            @Param("courierId") String courierId, @Param("status") TaskStatusEnum status
+    );
 }

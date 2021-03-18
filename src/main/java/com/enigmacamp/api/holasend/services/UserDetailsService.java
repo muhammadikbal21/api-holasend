@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface UserDetailsService extends CommonService<UserDetails, String> {
 
-    public UserDetails removeById(String id);
+    UserDetails removeById(String id);
 
-    public UserDetails findById(String id);
+    UserDetails findById(String id);
 
-    public List<UserDetails> findAll();
+    List<UserDetails> findAll();
 }

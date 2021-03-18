@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface UserService extends CommonService<User, String> {
 
-    public User removeById(String id);
+    User removeById(String id);
 
-    public User findById(String id);
+    User findById(String id);
 
-    public List<User> findAll();
+    List<User> findAll();
 
     User findByUsername(String username);
     Boolean existsByUsername(String username);

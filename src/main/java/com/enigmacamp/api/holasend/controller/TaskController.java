@@ -9,6 +9,7 @@ import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.enums.RoleEnum;
 import com.enigmacamp.api.holasend.exceptions.*;
+import com.enigmacamp.api.holasend.models.CountModel;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.elements.TaskElement;
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
@@ -318,5 +319,74 @@ public class TaskController {
 
         TaskReportExporter exp = new TaskReportExporter(modelList);
         exp.export(response);
+    }
+
+    @GetMapping("/count/waiting")
+    public ResponseMessage<Long> countWaiting(
+            HttpServletRequest request
+    ) {
+        validateMinimumCourier(request);
+
+        Long count = service.countWaitingTask();
+
+        return ResponseMessage.success(count);
+    }
+
+
+    @GetMapping("/count/assigned")
+    public ResponseMessage<Long> countByAssignedToCourier(
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+
+        User courier = findUser(request);
+
+        Long count = service.countByCourier(courier.getId(), ASSIGNED);
+
+        return ResponseMessage.success(count);
+    }
+
+    @GetMapping("/count/pick-up")
+    public ResponseMessage<Long> countByPickedUpByCourier(
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+
+        User courier = findUser(request);
+
+        Long count = service.countByCourier(courier.getId(), PICKUP);
+
+        return ResponseMessage.success(count);
+    }
+
+    @GetMapping("/count/delivered")
+    public ResponseMessage<Long> countByDelivered(
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+
+        User courier = findUser(request);
+
+        Long count = service.countByCourier(courier.getId(), DELIVERED);
+
+        return ResponseMessage.success(count);
+    }
+
+    @GetMapping("/count")
+    public ResponseMessage<CountModel> count(
+            HttpServletRequest request
+    ) {
+        validateCourier(request);
+
+        User courier = findUser(request);
+
+        CountModel count = new CountModel(
+                service.countWaitingTask(),
+                service.countByCourier(courier.getId(), ASSIGNED),
+                service.countByCourier(courier.getId(), PICKUP),
+                service.countByCourier(courier.getId(), DELIVERED)
+        );
+
+        return ResponseMessage.success(count);
     }
 }

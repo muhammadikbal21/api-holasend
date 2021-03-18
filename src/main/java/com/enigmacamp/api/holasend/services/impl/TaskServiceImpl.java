@@ -1,6 +1,7 @@
 package com.enigmacamp.api.holasend.services.impl;
 
 import com.enigmacamp.api.holasend.entities.Task;
+import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.repositories.TaskRepository;
 import com.enigmacamp.api.holasend.services.TaskService;
@@ -9,7 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements TaskService {
@@ -74,5 +74,15 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     @Override
     public List<Task> findAllPickedUpTaskByCourierActivityId(String activityId) {
         return repository.findAllPickedUpTaskByCourierActivityId(activityId);
+    }
+
+    @Override
+    public Long countWaitingTask() {
+        return repository.countByStatus(TaskStatusEnum.WAITING);
+    }
+
+    @Override
+    public Long countByCourier(String courierId, TaskStatusEnum status) {
+        return repository.countByCourierIdAndStatus(courierId, status);
     }
 }

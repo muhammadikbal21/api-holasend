@@ -1,16 +1,18 @@
 package com.enigmacamp.api.holasend.services;
 
 import com.enigmacamp.api.holasend.entities.Task;
+import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface TaskService extends CommonService<Task, String> {
 
-    public Task removeById(String id);
+    Task removeById(String id);
 
-    public Task findById(String id);
+    Task findById(String id);
 
-    public List<Task> findAll();
+    List<Task> findAll();
 
     List<Task> findAllUnfinishedTaskByCourierId(String courierId);
     List<Task> findAllWaitingTask();
@@ -19,4 +21,6 @@ public interface TaskService extends CommonService<Task, String> {
     List<Task> findAllUnfinishedRequestTask(String userId);
     List<Task> findAllFinishedRequestTask(String userId);
     List<Task> findAllPickedUpTaskByCourierActivityId(String activityId);
+    Long countWaitingTask();
+    Long countByCourier(String courierId, TaskStatusEnum status);
 }
