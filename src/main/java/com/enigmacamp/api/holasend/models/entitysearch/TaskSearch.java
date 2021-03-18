@@ -5,14 +5,14 @@ import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import com.enigmacamp.api.holasend.models.pagination.PageSearch;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 public class TaskSearch extends PageSearch {
 
-    private LocalDateTime pickUpTime;
+    private Date pickUpTime;
 
-    private LocalDateTime deliveredTime;
+    private Date deliveredTime;
 
     private TaskStatusEnum status;
 

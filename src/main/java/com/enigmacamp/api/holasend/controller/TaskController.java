@@ -34,6 +34,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -204,6 +205,9 @@ public class TaskController {
         validateAdmin(request);
         Task search = modelMapper.map(model, Task.class);
 
+        search.setPickUpTime(model.getPickUpTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        search.setDeliveredTime(model.getDeliveredTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
         Page<Task> entityPage = service.findAll(
                 search, model.getPage(), model.getSize(), model.getSort()
         );
@@ -220,6 +224,18 @@ public class TaskController {
                 entityPage.getTotalElements()
         );
 
+        return ResponseMessage.success(data);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseMessage<TaskResponse> removeById(
+            @PathVariable String id,
+            HttpServletRequest request
+    ) {
+        validateAdmin(request);
+        Task entity = service.removeById(id);
+
+        TaskResponse data = modelMapper.map(entity, TaskResponse.class);
         return ResponseMessage.success(data);
     }
 
