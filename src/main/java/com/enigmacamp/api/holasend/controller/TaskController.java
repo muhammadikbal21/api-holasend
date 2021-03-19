@@ -251,9 +251,6 @@ public class TaskController {
         validateAdmin(request);
         Task search = modelMapper.map(model, Task.class);
 
-        search.setPickUpTime(model.getPickUpTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-        search.setDeliveredTime(model.getDeliveredTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-
         Page<Task> entityPage = service.findAll(
                 search, model.getPage(), model.getSize(), model.getSort()
         );

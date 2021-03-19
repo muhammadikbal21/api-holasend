@@ -10,10 +10,6 @@ import java.util.Date;
 @Data
 public class TaskSearch extends PageSearch {
 
-    private Date pickUpTime;
-
-    private Date deliveredTime;
-
     private TaskStatusEnum status;
 
     private PriorityEnum priority;
