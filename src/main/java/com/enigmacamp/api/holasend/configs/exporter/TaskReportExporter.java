@@ -48,7 +48,7 @@ public class TaskReportExporter {
         style.setFont(font);
         style.setAlignment(CENTER);
         createCell(row, 0, "Task Report", style);
-        sheet.addMergedRegion(new CellRangeAddress(0,0,0,11));
+        sheet.addMergedRegion(new CellRangeAddress(0,0,0,10));
         font.setFontHeightInPoints((short) (10));
 
         row = sheet.createRow(1);
@@ -56,18 +56,17 @@ public class TaskReportExporter {
         font.setFontHeight(16);
         style.setFont(font);
 
-        createCell(row, 0, "Id", style);
+        createCell(row, 0, "Create Date", style);
         createCell(row, 1, "Destination", style);
         createCell(row, 2, "Address", style);
-        createCell(row, 3, "Request By", style);
-        createCell(row, 4, "Courier", style);
-        createCell(row, 5, "Pick Up", style);
-        createCell(row, 6, "Delivered", style);
-        createCell(row, 7, "Return", style);
-        createCell(row, 8, "Status", style);
-        createCell(row, 9, "Priority", style);
-        createCell(row, 10, "Notes", style);
-        createCell(row, 11, "Create Date", style);
+        createCell(row, 3, "Notes", style);
+        createCell(row, 4, "Request By", style);
+        createCell(row, 5, "Courier", style);
+        createCell(row, 6, "Pick Up", style);
+        createCell(row, 7, "Delivered", style);
+        createCell(row, 8, "Return", style);
+        createCell(row, 9, "Status", style);
+        createCell(row, 10, "Priority", style);
     }
 
     private void writeDataLines() {
@@ -81,9 +80,10 @@ public class TaskReportExporter {
         for (TaskReportModel taskReport : listTaskReportModel) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
-            createCell(row, columnCount++, taskReport.getId(), style);
+            createCell(row, columnCount++, taskReport.getCreateDate(), style);
             createCell(row, columnCount++, taskReport.getDestination(), style);
             createCell(row, columnCount++, taskReport.getAddress(), style);
+            createCell(row, columnCount++, taskReport.getNotes(), style);
             createCell(row, columnCount++, taskReport.getRequestBy(), style);
             createCell(row, columnCount++, taskReport.getCourier(), style);
             createCell(row, columnCount++, taskReport.getPickUpTime(), style);
@@ -91,8 +91,6 @@ public class TaskReportExporter {
             createCell(row, columnCount++, taskReport.getReturnTime(), style);
             createCell(row, columnCount++, taskReport.getStatus(), style);
             createCell(row, columnCount++, taskReport.getPriority(), style);
-            createCell(row, columnCount++, taskReport.getNotes(), style);
-            createCell(row, columnCount++, taskReport.getCreateDate(), style);
         }
     }
 

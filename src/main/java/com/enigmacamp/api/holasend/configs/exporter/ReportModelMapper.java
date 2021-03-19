@@ -10,10 +10,17 @@ import java.util.List;
 public class ReportModelMapper {
     public static List<TaskReportModel> convert(List<Task> taskList) {
         List<TaskReportModel> modelList = new ArrayList<>();
+
+        if (taskList.isEmpty()) {
+            TaskReportModel model = new TaskReportModel(
+                    "","","","","","","","","","",""
+            );
+            modelList.add(model);
+            return modelList;
+        }
         taskList.forEach(
                 task -> {
                     TaskReportModel model = new TaskReportModel();
-                    model.setId(task.getId());
                     model.setDestination(task.getDestination().getName());
                     model.setAddress(task.getDestination().getAddress());
                     model.setRequestBy(

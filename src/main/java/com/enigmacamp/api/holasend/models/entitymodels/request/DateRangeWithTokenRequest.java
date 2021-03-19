@@ -2,10 +2,15 @@ package com.enigmacamp.api.holasend.models.entitymodels.request;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
-public class DateRangeRequest {
+public class DateRangeWithTokenRequest {
+
+    @NotBlank
+    private String token;
 
     private String after = "2021-01-01";
 

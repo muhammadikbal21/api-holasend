@@ -12,6 +12,7 @@ import com.enigmacamp.api.holasend.models.CountModel;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.elements.TaskElement;
 import com.enigmacamp.api.holasend.models.entitymodels.request.DateRangeRequest;
+import com.enigmacamp.api.holasend.models.entitymodels.request.DateRangeWithTokenRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.*;
+import static com.enigmacamp.api.holasend.enums.RoleEnum.ADMIN;
 import static com.enigmacamp.api.holasend.enums.TaskStatusEnum.*;
 
 @RestController
@@ -106,6 +108,66 @@ public class TaskController {
 
         TaskResponse data = modelMapper.map(entity, TaskResponse.class);
         return ResponseMessage.success(data);
+    }
+
+    @GetMapping("/all")
+    public ResponseMessage<List<TaskResponse>> findAllByRange(
+            DateRangeRequest model,
+            HttpServletRequest request
+    ) {
+        validateAdmin(request);
+
+        Boolean validDateStart = DateTimeValidator.validate(model.getAfter());
+        Boolean validDateEnd = DateTimeValidator.validate(model.getBefore());
+
+        if (!validDateStart || !validDateEnd)
+            throw new DateInvalidException();
+
+        List<Task> taskList = service.findByRange(
+                model.getAfter(),
+                model.getBefore()
+        );
+
+        List<TaskResponse> data = taskList.stream().map(
+                e -> modelMapper.map(e, TaskResponse.class)
+        ).collect(Collectors.toList());
+
+        return ResponseMessage.success(data);
+    }
+
+    @GetMapping("/export")
+    public void exportToExcel(
+            @Valid DateRangeWithTokenRequest model,
+            HttpServletResponse response
+    ) throws IOException {
+
+        String username = jwtTokenUtil.getUsernameFromToken(model.getToken());
+        User user = userService.findByUsername(username);
+
+        if (!user.getRole().equals(ADMIN))
+            throw new InvalidCredentialsException();
+
+        Boolean validDateStart = DateTimeValidator.validate(model.getAfter());
+        Boolean validDateEnd = DateTimeValidator.validate(model.getBefore());
+
+        if (!validDateStart || !validDateEnd)
+            throw new DateInvalidException();
+
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        LocalDateTime timestamp = LocalDateTime.now();
+        String headerValue = "attachment; filename=Report " + timestamp.toString().substring(0, 16) + ".xlsx";
+
+        response.setHeader(headerKey, headerValue);
+        List<Task> taskList = service.findByRange(
+                model.getAfter(),
+                model.getBefore()
+        );
+
+        List<TaskReportModel> modelList = ReportModelMapper.convert(taskList);
+
+        TaskReportExporter exp = new TaskReportExporter(modelList);
+        exp.export(response);
     }
 
     @PutMapping("/assign/cancel/{id}")
@@ -179,19 +241,6 @@ public class TaskController {
 
         TaskResponse data = modelMapper.map(entity, TaskResponse.class);
         return ResponseMessage.success(data);
-    }
-
-    @GetMapping("/all")
-    public ResponseMessage<List<TaskResponse>> findAll(
-            HttpServletRequest request
-    ) {
-        validateAdmin(request);
-        List<Task> entities = service.findAll();
-        List<TaskResponse> responses = entities.stream()
-                .map(e -> modelMapper.map(e, TaskResponse.class))
-                .collect(Collectors.toList());
-
-        return ResponseMessage.success(responses);
     }
 
     @GetMapping
@@ -317,23 +366,6 @@ public class TaskController {
         return ResponseMessage.success(data);
     }
 
-    @GetMapping("/export")
-    public void exportToExcel(
-            HttpServletResponse response
-    ) throws IOException {
-        response.setContentType("application/octet-stream");
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=Report.xlsx";
-
-        response.setHeader(headerKey, headerValue);
-        List<Task> taskList = service.findAll();
-
-        List<TaskReportModel> modelList = ReportModelMapper.convert(taskList);
-
-        TaskReportExporter exp = new TaskReportExporter(modelList);
-        exp.export(response);
-    }
-
     @GetMapping("/count/waiting")
     public ResponseMessage<Long> countWaiting(
             HttpServletRequest request
@@ -401,30 +433,5 @@ public class TaskController {
         );
 
         return ResponseMessage.success(count);
-    }
-
-    @GetMapping("/range")
-    public ResponseMessage<List<TaskResponse>> findByRange(
-            @Valid DateRangeRequest model,
-            HttpServletRequest request
-    ) {
-        validateAdmin(request);
-
-        Boolean validDateStart = DateTimeValidator.validate(model.getStart());
-        Boolean validDateEnd = DateTimeValidator.validate(model.getEnd());
-
-        if (!validDateStart || !validDateEnd)
-            throw new DateInvalidException();
-
-        List<Task> taskList = service.findByRange(
-                model.getStart(),
-                model.getEnd()
-        );
-
-        List<TaskResponse> data = taskList.stream().map(
-                e -> modelMapper.map(e, TaskResponse.class)
-        ).collect(Collectors.toList());
-
-        return ResponseMessage.success(data);
     }
 }

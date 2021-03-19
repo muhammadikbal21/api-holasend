@@ -77,8 +77,8 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     }
 
     @Override
-    public List<Task> findByRange(String dateStart, String dateEnd) {
-        return repository.findByRange(dateStart, dateEnd);
+    public List<Task> findByRange(String after, String before) {
+        return repository.findByRange(after, before);
     }
 
     @Override
