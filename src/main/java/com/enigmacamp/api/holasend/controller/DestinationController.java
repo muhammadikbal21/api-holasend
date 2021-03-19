@@ -70,6 +70,8 @@ public class DestinationController {
         validateAdminOrStaff(request);
         Destination oldDestination = service.findByName(model.getName());
 
+        System.out.println(oldDestination);
+
         if (oldDestination != null) {
             throw new DestinationAlreadyExistsException();
         }
@@ -78,6 +80,7 @@ public class DestinationController {
         entity = service.save(entity);
 
         DestinationResponse data = modelMapper.map(entity, DestinationResponse.class);
+        System.out.println("SUCCESS");
         return ResponseMessage.success(data);
     }
 

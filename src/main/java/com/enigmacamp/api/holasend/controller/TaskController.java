@@ -244,7 +244,7 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseMessage<PagedList<TaskElement>> findAll(
+    public ResponseMessage<PagedList<TaskResponse>> findAll(
             TaskSearch model,
             HttpServletRequest request
     ) {
@@ -256,11 +256,11 @@ public class TaskController {
         );
         List<Task> entities = entityPage.toList();
 
-        List<TaskElement> responses = entities.stream()
-                .map(e -> modelMapper.map(e, TaskElement.class))
+        List<TaskResponse> responses = entities.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
                 .collect(Collectors.toList());
 
-        PagedList<TaskElement> data = new PagedList<>(
+        PagedList<TaskResponse> data = new PagedList<>(
                 responses,
                 entityPage.getNumber(),
                 entities.size(),
