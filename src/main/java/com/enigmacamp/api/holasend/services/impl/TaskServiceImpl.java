@@ -4,6 +4,7 @@ import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.enums.PriorityEnum;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
+import com.enigmacamp.api.holasend.exceptions.UnidentifiedEnumException;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 import com.enigmacamp.api.holasend.repositories.TaskRepository;
 import com.enigmacamp.api.holasend.services.TaskService;
@@ -90,11 +91,19 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
 
         if (search.getStatus() != null) {
             String statusUppercase = search.getStatus().toUpperCase();
-            status = String.valueOf(TaskStatusEnum.valueOf(statusUppercase).ordinal());
+            try {
+                status = String.valueOf(TaskStatusEnum.valueOf(statusUppercase).ordinal());
+            } catch (Exception e) {
+                throw new UnidentifiedEnumException();
+            }
         }
         if (search.getPriority() != null) {
             String priorityUppercase = search.getPriority().toUpperCase();
-            priority = String.valueOf(PriorityEnum.valueOf(priorityUppercase).ordinal());
+            try {
+                priority = String.valueOf(PriorityEnum.valueOf(priorityUppercase).ordinal());
+            } catch (Exception e) {
+                throw new UnidentifiedEnumException();
+            }
         }
 
         return repository.findByPaginate(
@@ -117,11 +126,19 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
 
         if (search.getStatus() != null) {
             String statusUppercase = search.getStatus().toUpperCase();
-            status = String.valueOf(TaskStatusEnum.valueOf(statusUppercase).ordinal());
+            try {
+                status = String.valueOf(TaskStatusEnum.valueOf(statusUppercase).ordinal());
+            } catch (Exception e) {
+                throw new UnidentifiedEnumException();
+            }
         }
         if (search.getPriority() != null) {
             String priorityUppercase = search.getPriority().toUpperCase();
-            priority = String.valueOf(PriorityEnum.valueOf(priorityUppercase).ordinal());
+            try {
+                priority = String.valueOf(PriorityEnum.valueOf(priorityUppercase).ordinal());
+            } catch (Exception e) {
+                throw new UnidentifiedEnumException();
+            }
         }
 
         return repository.countPaginate(
