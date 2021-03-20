@@ -228,7 +228,7 @@ public class UserController {
         User search = modelMapper.map(model, User.class);
 
         Page<User> entityPage = service.findAll(
-                search, model.getPage(), model.getSize(), model.getSort()
+                search, Integer.parseInt(model.getPage().toString()), Integer.parseInt(model.getSize().toString()), model.getSort()
         );
         List<User> entities = entityPage.toList();
 

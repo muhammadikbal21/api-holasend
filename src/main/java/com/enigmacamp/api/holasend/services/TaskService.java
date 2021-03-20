@@ -2,6 +2,7 @@ package com.enigmacamp.api.holasend.services;
 
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
+import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 
 import java.util.List;
 
@@ -21,6 +22,9 @@ public interface TaskService extends CommonService<Task, String> {
     List<Task> findAllFinishedRequestTask(String userId);
     List<Task> findAllPickedUpTaskByCourierActivityId(String activityId);
     List<Task> findByRange(String after, String before);
+    List<Task> findTasksByCreateDateOrStatusOrDestinationOrRequestByOrPriority(TaskSearch search);
+
+    Long countTasksByCreateDateOrStatusOrDestinationOrRequestByOrPriority(TaskSearch search);
     Long countWaitingTask();
     Long countByCourier(String courierId, TaskStatusEnum status);
 }

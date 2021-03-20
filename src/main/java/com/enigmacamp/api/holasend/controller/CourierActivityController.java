@@ -197,7 +197,7 @@ public class CourierActivityController {
         CourierActivity search = modelMapper.map(model, CourierActivity.class);
 
         Page<CourierActivity> entityPage = service.findAll(
-                search, model.getPage(), model.getSize(), model.getSort()
+                search, Integer.parseInt(model.getPage().toString()), Integer.parseInt(model.getSize().toString()), model.getSort()
         );
         List<CourierActivity> entities = entityPage.toList();
 

@@ -122,6 +122,7 @@ public class TaskController {
 
         if (!validDateStart || !validDateEnd)
             throw new DateInvalidException();
+        model.setBefore(model.getBefore() + " 23:59:59");
 
         List<Task> taskList = service.findByRange(
                 model.getAfter(),
@@ -152,6 +153,7 @@ public class TaskController {
 
         if (!validDateStart || !validDateEnd)
             throw new DateInvalidException();
+        model.setBefore(model.getBefore() + " 23:59:59");
 
         response.setContentType("application/octet-stream");
         String headerKey = "Content-Disposition";
@@ -249,12 +251,21 @@ public class TaskController {
             HttpServletRequest request
     ) {
         validateAdmin(request);
-        Task search = modelMapper.map(model, Task.class);
 
-        Page<Task> entityPage = service.findAll(
-                search, model.getPage(), model.getSize(), model.getSort()
+        Boolean validDateStart = DateTimeValidator.validate(model.getAfter());
+        Boolean validDateEnd = DateTimeValidator.validate(model.getBefore());
+
+        if (!validDateStart || !validDateEnd)
+            throw new DateInvalidException();
+        model.setBefore(model.getBefore() + " 23:59:59");
+
+        model.setPage(model.getSize() * model.getPage());
+
+        List<Task> entities = service.findTasksByCreateDateOrStatusOrDestinationOrRequestByOrPriority(
+                model
         );
-        List<Task> entities = entityPage.toList();
+
+        Long count = service.countTasksByCreateDateOrStatusOrDestinationOrRequestByOrPriority(model);
 
         List<TaskResponse> responses = entities.stream()
                 .map(e -> modelMapper.map(e, TaskResponse.class))
@@ -262,9 +273,9 @@ public class TaskController {
 
         PagedList<TaskResponse> data = new PagedList<>(
                 responses,
-                entityPage.getNumber(),
-                entities.size(),
-                entityPage.getTotalElements()
+                Integer.valueOf(model.getPage().toString()),
+                Integer.parseInt(model.getSize().toString()),
+                Long.parseLong(count.toString())
         );
 
         return ResponseMessage.success(data);

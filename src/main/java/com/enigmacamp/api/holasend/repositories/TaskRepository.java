@@ -1,7 +1,9 @@
 package com.enigmacamp.api.holasend.repositories;
 
 import com.enigmacamp.api.holasend.entities.Task;
+import com.enigmacamp.api.holasend.enums.PriorityEnum;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -74,6 +76,46 @@ public interface TaskRepository extends JpaRepository<Task, String> {
             "AND created_date < :before"
     , nativeQuery = true)
     List<Task> findByRange(
+            @Param("after") String after,
+            @Param("before") String before
+    );
+
+    @Query(value = table +
+            "AND status LIKE %:status% " +
+            "AND destination_id LIKE %:destination% " +
+            "AND request_by LIKE %:requestBy% " +
+            "AND priority LIKE %:priority% " +
+            "AND created_date > :after " +
+            "AND created_date < :before " +
+            "ORDER BY created_date ASC " +
+            "LIMIT :size " +
+            "OFFSET :page ",
+            nativeQuery = true)
+    List<Task> findByPaginate(
+            @Param("status") String status,
+            @Param("destination") String destination,
+            @Param("requestBy") String requestBy,
+            @Param("priority") String priority,
+            @Param("after") String after,
+            @Param("before") String before,
+            @Param("size") Long size,
+            @Param("page") Long page
+    );
+
+    @Query(value = "SELECT count(*) FROM task " +
+            "WHERE is_deleted = 0 " +
+            "AND status LIKE %:status% " +
+            "AND destination_id LIKE %:destination% " +
+            "AND request_by LIKE %:requestBy% " +
+            "AND priority LIKE %:priority% " +
+            "AND created_date > :after " +
+            "AND created_date < :before " ,
+            nativeQuery = true)
+    Long countPaginate(
+            @Param("status") String status,
+            @Param("destination") String destination,
+            @Param("requestBy") String requestBy,
+            @Param("priority") String priority,
             @Param("after") String after,
             @Param("before") String before
     );

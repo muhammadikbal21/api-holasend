@@ -139,7 +139,7 @@ public class DestinationController {
         Destination search = modelMapper.map(model, Destination.class);
 
         Page<Destination> entityPage = service.findAll(
-                search, model.getPage(), model.getSize(), model.getSort()
+                search, Integer.parseInt(model.getPage().toString()), Integer.parseInt(model.getSize().toString()), model.getSort()
         );
         List<Destination> entities = entityPage.toList();
 

@@ -1,16 +1,22 @@
 package com.enigmacamp.api.holasend.models.entitysearch;
 
-import com.enigmacamp.api.holasend.enums.PriorityEnum;
-import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import com.enigmacamp.api.holasend.models.pagination.PageSearch;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public class TaskSearch extends PageSearch {
 
-    private TaskStatusEnum status;
+    private String status;
 
-    private PriorityEnum priority;
+    private String destinationId = "";
+
+    private String requestById = "";
+
+    private String priority;
+
+    private String after = "2021-01-01";
+
+    private String before = LocalDateTime.now().plusDays(1).toString().substring(0, 10);
 }

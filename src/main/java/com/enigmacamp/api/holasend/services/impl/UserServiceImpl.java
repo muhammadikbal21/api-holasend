@@ -2,6 +2,7 @@ package com.enigmacamp.api.holasend.services.impl;
 
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
+import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,9 @@ public class UserServiceImpl extends CommonServiceImpl<User, String> implements 
     @Override
     public User findByUsername(String username) {
         User data = repository.findByUsername(username);
-        if (data.getIsDeleted())
-            throw new EntityNotFoundException();
+        if (data != null)
+            if (data.getIsDeleted())
+                throw new InvalidCredentialsException();
         return data;
     }
 

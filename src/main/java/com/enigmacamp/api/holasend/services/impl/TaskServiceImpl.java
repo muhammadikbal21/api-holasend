@@ -1,8 +1,10 @@
 package com.enigmacamp.api.holasend.services.impl;
 
 import com.enigmacamp.api.holasend.entities.Task;
+import com.enigmacamp.api.holasend.enums.PriorityEnum;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
+import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 import com.enigmacamp.api.holasend.repositories.TaskRepository;
 import com.enigmacamp.api.holasend.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +81,57 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     @Override
     public List<Task> findByRange(String after, String before) {
         return repository.findByRange(after, before);
+    }
+
+    @Override
+    public List<Task> findTasksByCreateDateOrStatusOrDestinationOrRequestByOrPriority(TaskSearch search) {
+        String status = "";
+        String priority = "";
+
+        if (search.getStatus() != null) {
+            String statusUppercase = search.getStatus().toUpperCase();
+            status = String.valueOf(TaskStatusEnum.valueOf(statusUppercase).ordinal());
+        }
+        if (search.getPriority() != null) {
+            String priorityUppercase = search.getPriority().toUpperCase();
+            priority = String.valueOf(PriorityEnum.valueOf(priorityUppercase).ordinal());
+        }
+
+        return repository.findByPaginate(
+                status,
+                search.getDestinationId(),
+                search.getRequestById(),
+                priority,
+                search.getAfter(),
+                search.getBefore(),
+                search.getSize(),
+                search.getPage()
+        );
+    }
+
+    @Override
+    public Long countTasksByCreateDateOrStatusOrDestinationOrRequestByOrPriority(TaskSearch search) {
+
+        String status = "";
+        String priority = "";
+
+        if (search.getStatus() != null) {
+            String statusUppercase = search.getStatus().toUpperCase();
+            status = String.valueOf(TaskStatusEnum.valueOf(statusUppercase).ordinal());
+        }
+        if (search.getPriority() != null) {
+            String priorityUppercase = search.getPriority().toUpperCase();
+            priority = String.valueOf(PriorityEnum.valueOf(priorityUppercase).ordinal());
+        }
+
+        return repository.countPaginate(
+                status,
+                search.getDestinationId(),
+                search.getRequestById(),
+                priority,
+                search.getAfter(),
+                search.getBefore()
+        );
     }
 
     @Override

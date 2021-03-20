@@ -109,7 +109,7 @@ public class UserDetailsController {
         UserDetails search = modelMapper.map(model, UserDetails.class);
 
         Page<UserDetails> entityPage = service.findAll(
-                search, model.getPage(), model.getSize(), model.getSort()
+                search, Integer.parseInt(model.getPage().toString()), Integer.parseInt(model.getSize().toString()), model.getSort()
         );
         List<UserDetails> entities = entityPage.toList();
 

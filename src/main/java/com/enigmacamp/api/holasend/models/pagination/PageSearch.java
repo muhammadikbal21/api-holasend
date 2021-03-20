@@ -8,10 +8,10 @@ import javax.validation.constraints.Max;
 @Data
 public class PageSearch {
 
-    private Integer page = 0;
+    private Long page = 0L;
 
-    @Max(Integer.MAX_VALUE)
-    private Integer size = 10;
+    @Max(Long.MAX_VALUE)
+    private Long size = 10L;
 
     private Direction sort = Direction.ASC;
 }
