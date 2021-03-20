@@ -10,13 +10,13 @@ import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.*;
 import com.enigmacamp.api.holasend.models.CountModel;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
-import com.enigmacamp.api.holasend.models.entitymodels.elements.TaskElement;
 import com.enigmacamp.api.holasend.models.entitymodels.request.DateRangeRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.DateRangeWithTokenRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 import com.enigmacamp.api.holasend.models.excel.TaskReportModel;
+import com.enigmacamp.api.holasend.models.pagination.PageSearch;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
 import com.enigmacamp.api.holasend.models.validations.DateTimeValidator;
 import com.enigmacamp.api.holasend.services.CourierActivityService;
@@ -26,7 +26,6 @@ import com.enigmacamp.api.holasend.services.UserService;
 import com.enigmacamp.api.holasend.utils.TokenToUserConverter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +34,6 @@ import javax.validation.Valid;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -265,7 +263,7 @@ public class TaskController {
                 model
         );
 
-        Long count = service.countTasksByCreateDateOrStatusOrDestinationOrRequestByOrPriority(model);
+        Long count = service.countPagination(model);
 
         List<TaskResponse> responses = entities.stream()
                 .map(e -> modelMapper.map(e, TaskResponse.class))
@@ -321,17 +319,27 @@ public class TaskController {
     }
 
     @GetMapping("/my-task/finished")
-    public ResponseMessage<List<TaskResponse>> findAllFinishedTask(
-            HttpServletRequest request
+    public ResponseMessage<PagedList<TaskResponse>> findAllFinishedTask(
+            HttpServletRequest request,
+            PageSearch search
     ) {
         validateCourier(request);
         User courier = findUser(request);
-        List<Task> entities = service.findAllCourierTaskHistory(courier.getId());
+        List<Task> entities = service.findAllCourierTaskHistory(courier.getId(), search);
         List<TaskResponse> responses = entities.stream()
                 .map(e -> modelMapper.map(e, TaskResponse.class))
                 .collect(Collectors.toList());
 
-        return ResponseMessage.success(responses);
+        Long count = service.countAllCourierTaskHistory(courier);
+
+        PagedList<TaskResponse> data = new PagedList<>(
+                responses,
+                Integer.valueOf(search.getPage().toString()),
+                Integer.parseInt(search.getSize().toString()),
+                Long.parseLong(count.toString())
+        );
+
+        return ResponseMessage.success(data);
     }
 
     @GetMapping("/my-request/unfinished")
@@ -349,17 +357,27 @@ public class TaskController {
     }
 
     @GetMapping("/my-request/finished")
-    public ResponseMessage<List<TaskResponse>> findAllFinishedRequestedTask(
-            HttpServletRequest request
+    public ResponseMessage<PagedList<TaskResponse>> findAllFinishedRequestedTask(
+            HttpServletRequest request,
+            PageSearch search
     ) {
         validateAdminOrStaff(request);
         User user = findUser(request);
-        List<Task> entities = service.findAllFinishedRequestTask(user.getId());
+        List<Task> entities = service.findAllFinishedRequestTask(user.getId(), search);
         List<TaskResponse> responses = entities.stream()
                 .map(e -> modelMapper.map(e, TaskResponse.class))
                 .collect(Collectors.toList());
 
-        return ResponseMessage.success(responses);
+        Long count = service.countAllFinishedRequestTask(user);
+
+        PagedList<TaskResponse> data = new PagedList<>(
+                responses,
+                Integer.valueOf(search.getPage().toString()),
+                Integer.parseInt(search.getSize().toString()),
+                Long.parseLong(count.toString())
+        );
+
+        return ResponseMessage.success(data);
     }
 
     @GetMapping("/{id}")

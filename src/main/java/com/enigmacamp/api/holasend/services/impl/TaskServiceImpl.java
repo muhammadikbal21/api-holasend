@@ -1,11 +1,13 @@
 package com.enigmacamp.api.holasend.services.impl;
 
 import com.enigmacamp.api.holasend.entities.Task;
+import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.enums.PriorityEnum;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.exceptions.UnidentifiedEnumException;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
+import com.enigmacamp.api.holasend.models.pagination.PageSearch;
 import com.enigmacamp.api.holasend.repositories.TaskRepository;
 import com.enigmacamp.api.holasend.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +62,13 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     }
 
     @Override
-    public List<Task> findAllCourierTaskHistory(String courierId) {
-        return repository.findAllCourierTaskHistory(courierId);
+    public List<Task> findAllCourierTaskHistory(String courierId, PageSearch search) {
+        return repository.findAllCourierTaskHistory(courierId, search.getSize(), (search.getSize())*search.getPage());
+    }
+
+    @Override
+    public Long countAllCourierTaskHistory(User user) {
+        return repository.countByIsDeletedAndCourierAndStatus(false, user, TaskStatusEnum.DELIVERED);
     }
 
     @Override
@@ -70,8 +77,13 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     }
 
     @Override
-    public List<Task> findAllFinishedRequestTask(String userId) {
-        return repository.findAllFinishedRequestTask(userId);
+    public List<Task> findAllFinishedRequestTask(String userId, PageSearch search) {
+        return repository.findAllFinishedRequestTask(userId, search.getSize(), (search.getSize())*search.getPage());
+    }
+
+    @Override
+    public Long countAllFinishedRequestTask(User user) {
+        return repository.countByIsDeletedAndRequestByAndStatus(false, user, TaskStatusEnum.DELIVERED);
     }
 
     @Override
@@ -119,7 +131,7 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     }
 
     @Override
-    public Long countTasksByCreateDateOrStatusOrDestinationOrRequestByOrPriority(TaskSearch search) {
+    public Long countPagination(TaskSearch search) {
 
         String status = "";
         String priority = "";
@@ -153,11 +165,11 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
 
     @Override
     public Long countWaitingTask() {
-        return repository.countByStatus(TaskStatusEnum.WAITING);
+        return repository.countByIsDeletedAndStatus(false, TaskStatusEnum.WAITING);
     }
 
     @Override
     public Long countByCourier(String courierId, TaskStatusEnum status) {
-        return repository.countByCourierIdAndStatus(courierId, status);
+        return repository.countByIsDeletedAndCourierIdAndStatus(false, courierId, status);
     }
 }

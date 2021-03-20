@@ -1,6 +1,7 @@
 package com.enigmacamp.api.holasend.repositories;
 
 import com.enigmacamp.api.holasend.entities.Task;
+import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.enums.PriorityEnum;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import org.springframework.data.domain.Sort;
@@ -40,15 +41,30 @@ public interface TaskRepository extends JpaRepository<Task, String> {
 
     @Query(value = table +
             "AND courier = :courierId " +
-            "AND status = 3",
+            "AND status = 3 " +
+            "LIMIT :size " +
+            "OFFSET :page ",
             nativeQuery = true)
     List<Task> findAllCourierTaskHistory(
-            @Param("courierId") String courierId
+            @Param("courierId") String courierId,
+            @Param("size") Long size,
+            @Param("page") Long page
+    );
+
+    @Query(countQuery = "SELECT count(*) FROM task " +
+            "WHERE is_deleted = :isDeleted " +
+            "AND courier = :courier " +
+            "AND status = :status",
+            nativeQuery = true)
+    Long countByIsDeletedAndCourierAndStatus(
+            @Param("isDeleted") Boolean isDeleted,
+            @Param("courier") User courier,
+            @Param("status") TaskStatusEnum status
     );
 
     @Query(value = table +
             "AND request_by = :userId " +
-            "AND status != 3",
+            "AND status != 3 ",
             nativeQuery = true)
     List<Task> findAllUnfinishedRequestTask(
             @Param("userId") String userId
@@ -56,14 +72,29 @@ public interface TaskRepository extends JpaRepository<Task, String> {
 
     @Query(value = table +
             "AND request_by = :userId " +
-            "AND status = 3",
+            "AND status = 3 " +
+            "LIMIT :size " +
+            "OFFSET :page ",
             nativeQuery = true)
     List<Task> findAllFinishedRequestTask(
-            @Param("userId") String userId
+            @Param("userId") String userId,
+            @Param("size") Long size,
+            @Param("page") Long page
+    );
+
+    @Query(countQuery = "SELECT count(*) FROM task " +
+            "WHERE is_deleted = :isDeleted " +
+            "AND request_by = :user " +
+            "AND status = :status",
+            nativeQuery = true)
+    Long countByIsDeletedAndRequestByAndStatus(
+            @Param("isDeleted") Boolean isDeleted,
+            @Param("user") User user,
+            @Param("status") TaskStatusEnum status
     );
 
     @Query(value = table +
-            "AND courier_activity_id " +
+            "AND courier_activity_id = :activityId" +
             "AND status = 2", nativeQuery = true)
     List<Task> findAllPickedUpTaskByCourierActivityId(
             @Param("activityId") String activityId);
@@ -121,18 +152,21 @@ public interface TaskRepository extends JpaRepository<Task, String> {
     );
 
     @Query(countQuery = "SELECT count(*) FROM task " +
-            "WHERE is_deleted = 0 " +
+            "WHERE is_deleted :isDeleted " +
             "AND status = :status",
             nativeQuery = true)
-    Long countByStatus(
+    Long countByIsDeletedAndStatus(
+            @Param("isDeleted") Boolean isDeleted,
             @Param("status") TaskStatusEnum status);
 
     @Query(countQuery = "SELECT count(*) FROM task " +
-            "WHERE is_deleted = 0 " +
+            "WHERE is_deleted :isDeleted " +
             "AND status = :status " +
             "AND courier_id = :courierId "
     , nativeQuery = true)
-    Long countByCourierIdAndStatus(
-            @Param("courierId") String courierId, @Param("status") TaskStatusEnum status
+    Long countByIsDeletedAndCourierIdAndStatus(
+            @Param("isDeleted") Boolean isDeleted,
+            @Param("courierId") String courierId,
+            @Param("status") TaskStatusEnum status
     );
 }
