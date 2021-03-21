@@ -9,6 +9,8 @@ import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.*;
 import com.enigmacamp.api.holasend.models.CountModel;
+import com.enigmacamp.api.holasend.models.FirebaseNotification;
+import com.enigmacamp.api.holasend.models.FirebaseResponse;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.request.DateRangeRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.DateRangeWithTokenRequest;
@@ -26,7 +28,11 @@ import com.enigmacamp.api.holasend.services.UserService;
 import com.enigmacamp.api.holasend.utils.TokenToUserConverter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,6 +71,11 @@ public class TaskController {
 
     @Autowired
     private TokenToUserConverter tokenUtil;
+
+
+    private String baseUrl = "https://fcm.googleapis.com";
+
+    private WebClient webClient = WebClient.create(baseUrl);
 
     private void validateAdmin(HttpServletRequest request) {
         validateRoleAdmin(request, jwtTokenUtil, userService);
@@ -105,6 +116,31 @@ public class TaskController {
         entity = service.save(entity);
 
         TaskResponse data = modelMapper.map(entity, TaskResponse.class);
+
+        FirebaseNotification notification = new FirebaseNotification();
+
+        String title = "You Have A new Task";
+        String body = "Request from: " + user.getUsername() +
+                "\nTo: " + entity.getDestination().getName() +
+                "\nPriority: " + entity.getPriority() +
+                "\nNotes: " + entity.getNotes();
+
+        notification.getNotification().setTitle(title);
+        notification.getNotification().setBody(body);
+
+        notification.getData().setTitle(title);
+        notification.getData().setMessage(body);
+
+
+        webClient.post()
+                .uri("/fcm/send")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "key=AAAA3fJSimo:APA91bGTgz7ZyCkMfgszZViFE4kzKIaxlITucjlYQZj30He0Co_fTImo55SR77PcjFHMpCygnJG2jI5_WEGCo3l_Bri4cf4QJ73Wa0ANQ9osqNNes7569d1Vg4NLyD9ZC1N3CZIHRObK")
+                .bodyValue(notification)
+                .retrieve()
+                .bodyToMono(FirebaseResponse.class)
+                .block();
+
         return ResponseMessage.success(data);
     }
 
