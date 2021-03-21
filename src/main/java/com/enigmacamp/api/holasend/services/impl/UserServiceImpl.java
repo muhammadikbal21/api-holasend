@@ -41,6 +41,11 @@ public class UserServiceImpl extends CommonServiceImpl<User, String> implements 
         return repository.findAllNotDeleted();
     }
 
+    @Override
+    public List<User> findOnlyStaffOrAdmin() {
+        return repository.findOnlyStaffOrAdmin();
+    }
+
 
     @Override
     public User findByUsername(String username) {

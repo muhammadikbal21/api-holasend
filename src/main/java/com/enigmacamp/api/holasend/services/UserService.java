@@ -11,6 +11,7 @@ public interface UserService extends CommonService<User, String> {
     User findById(String id);
 
     List<User> findAll();
+    List<User> findOnlyStaffOrAdmin();
 
     User findByUsername(String username);
     Boolean existsByUsername(String username);

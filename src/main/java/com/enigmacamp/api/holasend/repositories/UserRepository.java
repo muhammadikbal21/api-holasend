@@ -16,4 +16,9 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query(value = table, nativeQuery = true)
     List<User> findAllNotDeleted();
+
+    @Query(value = table +
+            "AND (role = 1 OR role = 0)",
+            nativeQuery = true)
+    List<User> findOnlyStaffOrAdmin();
 }

@@ -54,6 +54,10 @@ public class UserController {
             throw new InvalidPermissionsException();
     }
 
+    private void validateAdmin(HttpServletRequest request) {
+        validateRoleAdmin(request, jwtTokenUtil, service);
+    }
+
     private ResponseMessage<UserResponse> changeRole(String username, String token, RoleEnum role) {
         if (token != null && token.startsWith("Bearer ")) {
             User user = service.findByUsername(username);
@@ -242,6 +246,20 @@ public class UserController {
                 entityPage.getSize(),
                 entityPage.getTotalElements()
         );
+
+        return ResponseMessage.success(data);
+    }
+
+    @GetMapping("/admin-or-staff")
+    public ResponseMessage<List<UserResponse>> findOnlyAdminOrStaff(
+            HttpServletRequest request
+    ) {
+        validateAdmin(request);
+        List<User> users = service.findOnlyStaffOrAdmin();
+
+        List<UserResponse> data = users.stream()
+                .map(e -> modelMapper.map(e, UserResponse.class))
+                .collect(Collectors.toList());
 
         return ResponseMessage.success(data);
     }
