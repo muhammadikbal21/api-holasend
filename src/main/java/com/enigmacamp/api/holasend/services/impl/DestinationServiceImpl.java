@@ -51,5 +51,4 @@ public class DestinationServiceImpl extends CommonServiceImpl<Destination, Strin
     public List<Destination> findAll() {
         return repository.findAllNotDeleted();
     }
-
 }
