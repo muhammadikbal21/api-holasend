@@ -28,10 +28,7 @@ public class CourierActivityServiceImpl extends CommonServiceImpl<CourierActivit
 
     @Override
     public CourierActivity findActiveCourierActivityByCourierId(String courierId) {
-        CourierActivity data = repository.findActiveCourierActivityByCourierId(courierId);
-        if (data == null)
-            throw new NoActiveActivityException();
-        return data;
+        return repository.findActiveCourierActivityByCourierId(courierId);
     }
 
     public CourierActivity removeById(String id) {
