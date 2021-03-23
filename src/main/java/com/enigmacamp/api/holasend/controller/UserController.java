@@ -12,11 +12,13 @@ import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.elements.UserElement;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserChangePasswordRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserWithUserDetailsRequest;
+import com.enigmacamp.api.holasend.models.entitymodels.request.UsernameEmailWithUserDetailsRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.UserSearch;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
 import com.enigmacamp.api.holasend.services.UserDetailsService;
 import com.enigmacamp.api.holasend.services.UserService;
+import com.enigmacamp.api.holasend.utils.TokenToUserConverter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,8 +30,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.validateNotDisabled;
-import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.validateRoleAdmin;
+import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.*;
 import static com.enigmacamp.api.holasend.enums.RoleEnum.*;
 
 
@@ -48,6 +49,18 @@ public class UserController {
 
     @Autowired
     private JwtToken jwtTokenUtil;
+
+    @Autowired
+    private TokenToUserConverter tokenUtil;
+
+
+    private User findUser(HttpServletRequest request) {
+        return tokenUtil.convertToken(request, service, jwtTokenUtil);
+    }
+
+    private void validateMinimumCourier(HttpServletRequest request) {
+        validateRoleMinimumCourier(request, jwtTokenUtil, service);
+    }
 
     private void validateAdmin(User loggedInUser, User user) {
         if (loggedInUser.getUsername().equals(user.getUsername()) || !loggedInUser.getRole().equals(ADMIN))
@@ -161,6 +174,30 @@ public class UserController {
 
         return ResponseMessage.success(data);
     }
+
+    @PutMapping
+    public ResponseMessage<UserResponse> editUsernameAndEmailWithUserDetails(
+            @Valid @RequestBody UsernameEmailWithUserDetailsRequest model,
+            HttpServletRequest request
+    ) {
+        validateMinimumCourier(request);
+        User user = findUser(request);
+
+        user.setUsername(model.getUsername());
+        user.setEmail(model.getEmail());
+        user.getUserDetails().setFirstName(model.getUserDetails().getFirstName());
+        user.getUserDetails().setLastName(model.getUserDetails().getLastName());
+        user.getUserDetails().setIdentityCategory(model.getUserDetails().getIdentityCategory());
+        user.getUserDetails().setIdentificationNumber(model.getUserDetails().getIdentificationNumber());
+        user.getUserDetails().setContactNumber(model.getUserDetails().getContactNumber());
+
+        service.save(user);
+
+        UserResponse data = modelMapper.map(user, UserResponse.class);
+
+        return ResponseMessage.success(data);
+    }
+
 
     @GetMapping("/me")
     public ResponseMessage<UserResponse> me(

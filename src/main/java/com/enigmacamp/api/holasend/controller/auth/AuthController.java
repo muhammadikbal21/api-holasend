@@ -3,13 +3,17 @@ package com.enigmacamp.api.holasend.controller.auth;
 import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
+import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
 import com.enigmacamp.api.holasend.exceptions.UserDisabledException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.TokenWithRoleModel;
+import com.enigmacamp.api.holasend.models.entitymodels.request.ChangePasswordRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserLoginRequest;
+import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
 import com.enigmacamp.api.holasend.services.jwt.UserJwtService;
 import com.enigmacamp.api.holasend.services.mail.EmailService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,6 +24,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import static com.enigmacamp.api.holasend.enums.RoleEnum.DISABLED;
 
@@ -41,6 +47,9 @@ public class AuthController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
@@ -81,6 +90,33 @@ public class AuthController {
         emailService.sendTokenToEmail(email, username, secretActivationCode);
         repository.save(user);
         return ResponseMessage.success(email);
+    }
+
+    @PutMapping
+    public ResponseMessage<UserResponse> changePassword(
+            @Valid @RequestBody ChangePasswordRequest model,
+            HttpServletRequest request
+    ) {
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new InvalidPermissionsException();
+        }
+        token = token.substring(7);
+        String username = jwtToken.getUsernameFromToken(token);
+        User user = repository.findByUsername(username);
+
+        if (user.getRole().equals(DISABLED))
+            throw new UserDisabledException();
+
+        authenticate(user.getUsername(), model.getOldPassword());
+
+        String hashPassword = new BCryptPasswordEncoder().encode(model.getNewPassword());
+        user.setPassword(hashPassword);
+        repository.save(user);
+
+        UserResponse response = modelMapper.map(user, UserResponse.class);
+
+        return ResponseMessage.success(response);
     }
 
     private void authenticate(String username, String password) {
