@@ -103,7 +103,7 @@ public class CourierActivityController {
                     task.setCourier(courier);
                     task.setStatus(PICKUP);
                     task.setCourierActivity(finalActivity);
-                    task = taskService.save(task);
+                    taskService.save(task);
                 }
         );
 
