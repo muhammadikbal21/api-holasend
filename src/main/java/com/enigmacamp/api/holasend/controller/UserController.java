@@ -13,6 +13,7 @@ import com.enigmacamp.api.holasend.models.entitymodels.elements.UserElement;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserChangePasswordRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserWithUserDetailsRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UsernameEmailWithUserDetailsRequest;
+import com.enigmacamp.api.holasend.models.entitymodels.response.RoleCountResponse;
 import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.UserSearch;
 import com.enigmacamp.api.holasend.models.pagination.PagedList;
@@ -52,6 +53,10 @@ public class UserController {
 
     @Autowired
     private TokenToUserConverter tokenUtil;
+
+    private void validateAdminOrStaff(HttpServletRequest request) {
+        validateRoleAdminOrStaff(request, jwtTokenUtil, service);
+    }
 
 
     private User findUser(HttpServletRequest request) {
@@ -299,5 +304,22 @@ public class UserController {
                 .collect(Collectors.toList());
 
         return ResponseMessage.success(data);
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseMessage<RoleCountResponse> countDashboard(
+            HttpServletRequest request
+    ) {
+        validateAdminOrStaff(request);
+
+        RoleCountResponse response = new RoleCountResponse(
+                service.countByRole(ADMIN),
+                service.countByRole(STAFF),
+                service.countByRole(COURIER),
+                service.countByRole(UNASSIGNED),
+                service.countByRole(DISABLED)
+        );
+
+        return ResponseMessage.success(response);
     }
 }

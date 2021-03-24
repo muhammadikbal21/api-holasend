@@ -172,4 +172,9 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     public Long countByCourier(String courierId, TaskStatusEnum status) {
         return repository.countByIsDeletedAndCourierIdAndStatus(false, courierId, status);
     }
+
+    @Override
+    public Long countByStatus(TaskStatusEnum status) {
+        return repository.countByIsDeletedAndStatus(false, status);
+    }
 }

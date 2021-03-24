@@ -1,6 +1,7 @@
 package com.enigmacamp.api.holasend.services.impl;
 
 import com.enigmacamp.api.holasend.entities.User;
+import com.enigmacamp.api.holasend.enums.RoleEnum;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
@@ -59,5 +60,10 @@ public class UserServiceImpl extends CommonServiceImpl<User, String> implements 
     @Override
     public Boolean existsByUsername(String username) {
         return repository.existsByUsername(username);
+    }
+
+    @Override
+    public Long countByRole(RoleEnum role) {
+        return repository.countByIsDeletedAndRole(false, role);
     }
 }

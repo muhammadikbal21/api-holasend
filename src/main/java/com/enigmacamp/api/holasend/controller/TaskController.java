@@ -15,6 +15,7 @@ import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.request.DateRangeRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.DateRangeWithTokenRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
+import com.enigmacamp.api.holasend.models.entitymodels.response.StatusCountResponse;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 import com.enigmacamp.api.holasend.models.excel.TaskReportModel;
@@ -32,7 +33,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -495,5 +495,20 @@ public class TaskController {
         );
 
         return ResponseMessage.success(count);
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseMessage<StatusCountResponse> roleCount(
+            HttpServletRequest request
+    ) {
+        validateAdminOrStaff(request);
+
+        StatusCountResponse response = new StatusCountResponse(
+                service.countByStatus(WAITING),
+                service.countByStatus(ASSIGNED),
+                service.countByStatus(PICKUP),
+                service.countByStatus(DELIVERED)
+        );
+        return ResponseMessage.success(response);
     }
 }

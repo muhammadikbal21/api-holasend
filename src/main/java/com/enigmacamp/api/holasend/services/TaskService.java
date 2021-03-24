@@ -31,4 +31,5 @@ public interface TaskService extends CommonService<Task, String> {
     Long countPagination(TaskSearch search);
     Long countWaitingTask();
     Long countByCourier(String courierId, TaskStatusEnum status);
+    Long countByStatus(TaskStatusEnum status);
 }
