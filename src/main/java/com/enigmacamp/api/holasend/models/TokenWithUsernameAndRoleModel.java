@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class TokenWithRoleModel {
+public class TokenWithUsernameAndRoleModel {
     private String token;
     private String username;
     private RoleEnum role;

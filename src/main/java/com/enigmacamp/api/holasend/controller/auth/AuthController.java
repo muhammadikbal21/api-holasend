@@ -6,7 +6,7 @@ import com.enigmacamp.api.holasend.exceptions.InvalidCredentialsException;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
 import com.enigmacamp.api.holasend.exceptions.UserDisabledException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
-import com.enigmacamp.api.holasend.models.TokenWithRoleModel;
+import com.enigmacamp.api.holasend.models.TokenWithUsernameAndRoleModel;
 import com.enigmacamp.api.holasend.models.entitymodels.request.ChangePasswordRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserLoginRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
@@ -53,7 +53,7 @@ public class AuthController {
 
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseMessage<TokenWithRoleModel> createAuthenticationToken(@RequestBody UserLoginRequest authenticationRequest) {
+    public ResponseMessage<TokenWithUsernameAndRoleModel> createAuthenticationToken(@RequestBody UserLoginRequest authenticationRequest) {
 
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
@@ -72,7 +72,7 @@ public class AuthController {
 
         final String token = jwtToken.generateToken(userDetails, 30 * 24);
 
-        TokenWithRoleModel data = new TokenWithRoleModel(token, user.getUsername(), user.getRole());
+        TokenWithUsernameAndRoleModel data = new TokenWithUsernameAndRoleModel(token, user.getUsername(), user.getRole());
 
         return ResponseMessage.success(data);
     }
