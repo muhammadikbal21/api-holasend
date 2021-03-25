@@ -131,6 +131,21 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     }
 
     @Override
+    public List<Task> findByLastCreatedTask() {
+        return repository.findByLastCreatedTask();
+    }
+
+    @Override
+    public List<Task> findByLastPickedUpTask() {
+        return repository.findByLastPickedUpTask();
+    }
+
+    @Override
+    public List<Task> findByLastDeliveredTask() {
+        return repository.findByLastDeliveredTask();
+    }
+
+    @Override
     public Long countPagination(TaskSearch search) {
 
         String status = "";

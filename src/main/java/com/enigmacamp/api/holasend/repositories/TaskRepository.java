@@ -133,6 +133,24 @@ public interface TaskRepository extends JpaRepository<Task, String> {
             @Param("page") Long page
     );
 
+    @Query(value = table +
+            "ORDER BY created_date DESC " +
+            "LIMIT 5",
+            nativeQuery = true)
+    List<Task> findByLastCreatedTask();
+
+    @Query(value = table +
+            "ORDER BY pickup_time DESC " +
+            "LIMIT 5",
+            nativeQuery = true)
+    List<Task> findByLastPickedUpTask();
+
+    @Query(value = table +
+            "ORDER BY delivered_time DESC " +
+            "LIMIT 5",
+            nativeQuery = true)
+    List<Task> findByLastDeliveredTask();
+
     @Query(value = "SELECT count(*) FROM task " +
             "WHERE is_deleted = 0 " +
             "AND status LIKE %:status% " +

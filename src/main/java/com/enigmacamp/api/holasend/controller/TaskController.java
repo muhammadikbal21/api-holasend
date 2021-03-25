@@ -503,11 +503,31 @@ public class TaskController {
     ) {
         validateAdminOrStaff(request);
 
+        List<Task> lastRequest = service.findByLastCreatedTask();
+        List<TaskResponse> lastRequestResponses = lastRequest.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
+                .collect(Collectors.toList());
+
+        List<Task> lastPickup = service.findByLastPickedUpTask();
+        List<TaskResponse> lastPickupResponses = lastPickup.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
+                .collect(Collectors.toList());
+
+        List<Task> lastDelivered = service.findByLastDeliveredTask();
+        List<TaskResponse> lastDeliveredResponses = lastDelivered.stream()
+                .map(e -> modelMapper.map(e, TaskResponse.class))
+                .collect(Collectors.toList());
+
+
         StatusCountResponse response = new StatusCountResponse(
                 service.countByStatus(WAITING),
                 service.countByStatus(ASSIGNED),
                 service.countByStatus(PICKUP),
-                service.countByStatus(DELIVERED)
+                service.countByStatus(DELIVERED),
+                lastRequestResponses,
+                lastPickupResponses,
+                lastDeliveredResponses
+
         );
         return ResponseMessage.success(response);
     }

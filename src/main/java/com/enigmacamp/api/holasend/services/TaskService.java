@@ -27,6 +27,9 @@ public interface TaskService extends CommonService<Task, String> {
     List<Task> findAllPickedUpTaskByCourierActivityId(String activityId);
     List<Task> findByRange(String after, String before);
     List<Task> findTasksByCreateDateOrStatusOrDestinationOrRequestByOrPriority(TaskSearch search);
+    List<Task> findByLastCreatedTask();
+    List<Task> findByLastPickedUpTask();
+    List<Task> findByLastDeliveredTask();
 
     Long countPagination(TaskSearch search);
     Long countWaitingTask();
