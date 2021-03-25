@@ -6,6 +6,7 @@ import com.enigmacamp.api.holasend.enums.PriorityEnum;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
 import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.exceptions.UnidentifiedEnumException;
+import com.enigmacamp.api.holasend.models.entitysearch.MyRequestTaskSearch;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 import com.enigmacamp.api.holasend.models.pagination.PageSearch;
 import com.enigmacamp.api.holasend.repositories.TaskRepository;
@@ -77,13 +78,37 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     }
 
     @Override
-    public List<Task> findAllFinishedRequestTask(String userId, PageSearch search) {
-        return repository.findAllFinishedRequestTask(userId, search.getSize(), (search.getSize())*search.getPage());
+    public List<Task> findAllFinishedRequestTask(String userId, MyRequestTaskSearch search) {
+
+        String status = "3";
+        String priority = "";
+
+        return repository.findByPaginate(
+                status,
+                search.getDestinationId(),
+                userId,
+                priority,
+                search.getAfter(),
+                search.getBefore(),
+                search.getSize(),
+                search.getPage()
+        );
     }
 
     @Override
-    public Long countAllFinishedRequestTask(User user) {
-        return repository.countByIsDeletedAndRequestByAndStatus(false, user, TaskStatusEnum.DELIVERED);
+    public Long countAllFinishedRequestTask(User user, MyRequestTaskSearch search) {
+
+        String status = "";
+        String priority = "3";
+
+        return repository.countPaginate(
+                status,
+                search.getDestinationId(),
+                user.getId(),
+                priority,
+                search.getAfter(),
+                search.getBefore()
+        );
     }
 
     @Override

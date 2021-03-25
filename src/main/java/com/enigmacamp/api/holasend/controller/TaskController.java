@@ -17,6 +17,7 @@ import com.enigmacamp.api.holasend.models.entitymodels.request.DateRangeWithToke
 import com.enigmacamp.api.holasend.models.entitymodels.request.TaskRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.StatusCountResponse;
 import com.enigmacamp.api.holasend.models.entitymodels.response.TaskResponse;
+import com.enigmacamp.api.holasend.models.entitysearch.MyRequestTaskSearch;
 import com.enigmacamp.api.holasend.models.entitysearch.TaskSearch;
 import com.enigmacamp.api.holasend.models.excel.TaskReportModel;
 import com.enigmacamp.api.holasend.models.pagination.PageSearch;
@@ -395,16 +396,24 @@ public class TaskController {
     @GetMapping("/my-request/finished")
     public ResponseMessage<PagedList<TaskResponse>> findAllFinishedRequestedTask(
             HttpServletRequest request,
-            PageSearch search
+            MyRequestTaskSearch search
     ) {
         validateAdminOrStaff(request);
+
+        Boolean validDateStart = DateTimeValidator.validate(search.getAfter());
+        Boolean validDateEnd = DateTimeValidator.validate(search.getBefore());
+
+        if (!validDateStart || !validDateEnd)
+            throw new DateInvalidException();
+        search.setBefore(search.getBefore() + " 23:59:59");
+
         User user = findUser(request);
         List<Task> entities = service.findAllFinishedRequestTask(user.getId(), search);
         List<TaskResponse> responses = entities.stream()
                 .map(e -> modelMapper.map(e, TaskResponse.class))
                 .collect(Collectors.toList());
 
-        Long count = service.countAllFinishedRequestTask(user);
+        Long count = service.countAllFinishedRequestTask(user, search);
 
         PagedList<TaskResponse> data = new PagedList<>(
                 responses,

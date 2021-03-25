@@ -71,29 +71,6 @@ public interface TaskRepository extends JpaRepository<Task, String> {
     );
 
     @Query(value = table +
-            "AND request_by = :userId " +
-            "AND status = 3 " +
-            "LIMIT :size " +
-            "OFFSET :page ",
-            nativeQuery = true)
-    List<Task> findAllFinishedRequestTask(
-            @Param("userId") String userId,
-            @Param("size") Long size,
-            @Param("page") Long page
-    );
-
-    @Query(countQuery = "SELECT count(*) FROM task " +
-            "WHERE is_deleted = :isDeleted " +
-            "AND request_by = :user " +
-            "AND status = :status",
-            nativeQuery = true)
-    Long countByIsDeletedAndRequestByAndStatus(
-            @Param("isDeleted") Boolean isDeleted,
-            @Param("user") User user,
-            @Param("status") TaskStatusEnum status
-    );
-
-    @Query(value = table +
             "AND courier_activity_id = :activityId " +
             "AND status = 2", nativeQuery = true)
     List<Task> findAllPickedUpTaskByCourierActivityId(
