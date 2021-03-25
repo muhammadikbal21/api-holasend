@@ -1,10 +1,8 @@
 package com.enigmacamp.api.holasend.models.entitymodels.request;
 
-import com.enigmacamp.api.holasend.models.validations.Password;
 import com.enigmacamp.api.holasend.models.validations.Username;
 import lombok.Data;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 

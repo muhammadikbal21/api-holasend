@@ -2,9 +2,7 @@ package com.enigmacamp.api.holasend.repositories;
 
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
-import com.enigmacamp.api.holasend.enums.PriorityEnum;
 import com.enigmacamp.api.holasend.enums.TaskStatusEnum;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -3,7 +3,6 @@ package com.enigmacamp.api.holasend.controller;
 import com.enigmacamp.api.holasend.configs.jwt.JwtToken;
 import com.enigmacamp.api.holasend.entities.User;
 import com.enigmacamp.api.holasend.entities.UserDetails;
-import com.enigmacamp.api.holasend.enums.RoleEnum;
 import com.enigmacamp.api.holasend.exceptions.InvalidPermissionsException;
 import com.enigmacamp.api.holasend.models.ResponseMessage;
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserDetailsRequest;

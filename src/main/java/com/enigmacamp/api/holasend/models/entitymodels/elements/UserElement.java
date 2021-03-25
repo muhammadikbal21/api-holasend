@@ -1,7 +1,6 @@
 package com.enigmacamp.api.holasend.models.entitymodels.elements;
 
 import com.enigmacamp.api.holasend.enums.RoleEnum;
-import com.enigmacamp.api.holasend.models.entitymodels.response.UserDetailsResponse;
 import lombok.Data;
 
 @Data

@@ -1,12 +1,9 @@
 package com.enigmacamp.api.holasend.services.impl;
 
-import com.enigmacamp.api.holasend.exceptions.EntityNotFoundException;
 import com.enigmacamp.api.holasend.services.CommonService;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public abstract class CommonServiceImpl<T, ID> implements CommonService<T, ID> {
