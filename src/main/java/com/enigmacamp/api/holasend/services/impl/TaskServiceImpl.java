@@ -83,6 +83,15 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
         String status = "3";
         String priority = "";
 
+        if (search.getPriority() != null) {
+            String priorityUppercase = search.getPriority().toUpperCase();
+            try {
+                priority = String.valueOf(PriorityEnum.valueOf(priorityUppercase).ordinal());
+            } catch (Exception e) {
+                throw new UnidentifiedEnumException();
+            }
+        }
+
         return repository.findByPaginate(
                 status,
                 search.getDestinationId(),
@@ -98,8 +107,17 @@ public class TaskServiceImpl extends CommonServiceImpl<Task, String>implements T
     @Override
     public Long countAllFinishedRequestTask(User user, MyRequestTaskSearch search) {
 
-        String status = "";
-        String priority = "3";
+        String status = "3";
+        String priority = "";
+
+        if (search.getPriority() != null) {
+            String priorityUppercase = search.getPriority().toUpperCase();
+            try {
+                priority = String.valueOf(PriorityEnum.valueOf(priorityUppercase).ordinal());
+            } catch (Exception e) {
+                throw new UnidentifiedEnumException();
+            }
+        }
 
         return repository.countPaginate(
                 status,
