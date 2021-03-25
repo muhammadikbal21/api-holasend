@@ -8,5 +8,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class TokenWithRoleModel {
     private String token;
+    private String username;
     private RoleEnum role;
 }

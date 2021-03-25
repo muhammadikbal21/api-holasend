@@ -72,7 +72,7 @@ public class AuthController {
 
         final String token = jwtToken.generateToken(userDetails, 30 * 24);
 
-        TokenWithRoleModel data = new TokenWithRoleModel(token, user.getRole());
+        TokenWithRoleModel data = new TokenWithRoleModel(token, user.getUsername(), user.getRole());
 
         return ResponseMessage.success(data);
     }
