@@ -50,9 +50,10 @@ public class UserServiceImpl extends CommonServiceImpl<User, String> implements 
     @Override
     public User findByUsername(String username) {
         User data = repository.findByUsername(username);
-        if (data != null)
-            if (data.getIsDeleted())
-                throw new InvalidCredentialsException();
+        if (data == null)
+            throw new EntityNotFoundException();
+        if (data.getIsDeleted())
+            throw new InvalidCredentialsException();
         return data;
     }
 
