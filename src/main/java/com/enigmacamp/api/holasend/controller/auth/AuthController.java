@@ -92,7 +92,7 @@ public class AuthController {
         return ResponseMessage.success(email);
     }
 
-    @PutMapping
+    @PutMapping("/change-password")
     public ResponseMessage<UserResponse> changePassword(
             @Valid @RequestBody ChangePasswordRequest model,
             HttpServletRequest request

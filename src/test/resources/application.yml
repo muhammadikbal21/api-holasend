@@ -1,0 +1,29 @@
+application.data-dir: images
+server.port: 8080
+
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:inventory
+    username: sa
+    password:
+  h2.console.enabled: true
+  jpa.database-platform: org.hibernate.dialect.H2Dialect
+  messages:
+    basename: i18n/messages
+  servlet:
+    multipart:
+      max-file-size: 300KB
+      max-request-size: 300KB
+  mail:
+    protocol: smtp
+    host: smtp.gmail.com
+    port: 587
+    username: enigmacampbatch6@gmail.com
+    password: byenjyffuacdnpxr
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

@@ -1,9 +1,13 @@
 package com.enigmacamp.api.holasend.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
+@Data
+@AllArgsConstructor
 public class ResponseMessage<T> {
 
     private Integer code;
@@ -16,38 +20,6 @@ public class ResponseMessage<T> {
         this.message = message;
         this.data = data;
         this.timestamp = LocalDateTime.now();
-    }
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
     }
 
     public static <T> ResponseMessage<T> success(T data) {
