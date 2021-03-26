@@ -11,6 +11,7 @@ import com.enigmacamp.api.holasend.models.entitymodels.request.ChangePasswordReq
 import com.enigmacamp.api.holasend.models.entitymodels.request.UserLoginRequest;
 import com.enigmacamp.api.holasend.models.entitymodels.response.UserResponse;
 import com.enigmacamp.api.holasend.repositories.UserRepository;
+import com.enigmacamp.api.holasend.services.UserService;
 import com.enigmacamp.api.holasend.services.jwt.UserJwtService;
 import com.enigmacamp.api.holasend.services.mail.EmailService;
 import org.modelmapper.ModelMapper;
@@ -43,7 +44,7 @@ public class AuthController {
     private UserJwtService service;
 
     @Autowired
-    private UserRepository repository;
+    private UserService userService;
 
     @Autowired
     private EmailService emailService;
@@ -57,11 +58,11 @@ public class AuthController {
 
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
-        User user = repository.findByUsername(authenticationRequest.getUsername());
+        User user = userService.findByUsername(authenticationRequest.getUsername());
 
         if (user.getToken() != null) {
             user.setToken(null);
-            repository.save(user);
+            userService.save(user);
         }
 
         if (user.getRole().equals(DISABLED))
@@ -81,14 +82,16 @@ public class AuthController {
     public ResponseMessage<String> forgetPassword(
             @PathVariable String username
     ) throws MessagingException {
-        User user = repository.findByUsername(username);
-        String secretActivationCode = new BCryptPasswordEncoder().encode(user.getPassword());
+        User user = userService.findByUsername(username);
+        final UserDetails userDetails = service
+                .loadUserByUsername(username);
 
+        final String secretActivationCode = jwtToken.generateToken(userDetails, 30 * 24);
         user.setToken(secretActivationCode);
         String email = user.getEmail();
 
         emailService.sendTokenToEmail(email, username, secretActivationCode);
-        repository.save(user);
+        userService.save(user);
         return ResponseMessage.success(email);
     }
 
@@ -103,7 +106,7 @@ public class AuthController {
         }
         token = token.substring(7);
         String username = jwtToken.getUsernameFromToken(token);
-        User user = repository.findByUsername(username);
+        User user = userService.findByUsername(username);
 
         if (user.getRole().equals(DISABLED))
             throw new UserDisabledException();
@@ -112,7 +115,7 @@ public class AuthController {
 
         String hashPassword = new BCryptPasswordEncoder().encode(model.getNewPassword());
         user.setPassword(hashPassword);
-        repository.save(user);
+        userService.save(user);
 
         UserResponse response = modelMapper.map(user, UserResponse.class);
 
