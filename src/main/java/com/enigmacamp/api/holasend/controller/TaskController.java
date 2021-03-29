@@ -7,6 +7,7 @@ import com.enigmacamp.api.holasend.entities.CourierActivity;
 import com.enigmacamp.api.holasend.entities.Destination;
 import com.enigmacamp.api.holasend.entities.Task;
 import com.enigmacamp.api.holasend.entities.User;
+import com.enigmacamp.api.holasend.enums.RoleEnum;
 import com.enigmacamp.api.holasend.exceptions.*;
 import com.enigmacamp.api.holasend.models.CountModel;
 import com.enigmacamp.api.holasend.models.FirebaseNotification;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 
 import static com.enigmacamp.api.holasend.controller.validations.RoleValidation.*;
 import static com.enigmacamp.api.holasend.enums.RoleEnum.ADMIN;
+import static com.enigmacamp.api.holasend.enums.RoleEnum.STAFF;
 import static com.enigmacamp.api.holasend.enums.TaskStatusEnum.*;
 
 @RestController
@@ -320,7 +322,16 @@ public class TaskController {
             @PathVariable String id,
             HttpServletRequest request
     ) {
-        validateAdmin(request);
+        validateAdminOrStaff(request);
+        User user = findUser(request);
+        Task findTask = service.findById(id);
+
+        if (user.getRole().equals(STAFF) && !findTask.getRequestBy().equals(user))
+            throw new InvalidCredentialsException();
+
+        if ((findTask.getStatus().equals(PICKUP) || findTask.getStatus().equals(DELIVERED)))
+            throw new TaskProceseedException();
+
         Task entity = service.removeById(id);
 
         TaskResponse data = modelMapper.map(entity, TaskResponse.class);
