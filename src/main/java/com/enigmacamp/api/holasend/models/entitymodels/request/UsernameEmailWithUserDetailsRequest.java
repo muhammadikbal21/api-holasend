@@ -3,6 +3,7 @@ package com.enigmacamp.api.holasend.models.entitymodels.request;
 import com.enigmacamp.api.holasend.models.validations.Username;
 import lombok.Data;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -13,7 +14,7 @@ public class UsernameEmailWithUserDetailsRequest {
     @NotBlank
     private String username;
 
-    @Username
+    @Email
     @NotBlank
     private String email;
 
