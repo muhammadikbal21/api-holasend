@@ -189,6 +189,7 @@ public class TaskController {
 
         if (!validDateStart || !validDateEnd)
             throw new DateInvalidException();
+        model.setAfter(model.getAfter() + " 01:01:01");
         model.setBefore(model.getBefore() + " 23:59:59");
 
         response.setContentType("application/octet-stream");

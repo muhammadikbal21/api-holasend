@@ -56,7 +56,10 @@ public class ReportModelMapper {
 
                     if (task.getCourierActivity() != null) {
                         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-                        String formattedDateTime = task.getCourierActivity().getReturnTime().format(formatter);
+                        String formattedDateTime = "";
+                        if (task.getCourierActivity().getReturnTime() != null) {
+                            formattedDateTime = task.getCourierActivity().getReturnTime().format(formatter);
+                        }
                         model.setReturnTime(formattedDateTime);
                     } else {
                         model.setReturnTime("");
