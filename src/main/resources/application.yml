@@ -5,9 +5,9 @@ server.port: 8080
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/holasend?serverTimesone=UTC
-    username: root
-    password: 12345678
+    url: jdbc:mysql://remotemysql:3306/Os9w2HtVJl?serverTimesone=UTC
+    username: Os9w2HtVJl
+    password: HYYaTT4fYs
   jpa:
     hibernate.ddl-auto: update
     generate-ddl: true
