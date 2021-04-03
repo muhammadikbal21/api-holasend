@@ -62,7 +62,8 @@ public interface TaskRepository extends JpaRepository<Task, String> {
 
     @Query(value = table +
             "AND request_by = :userId " +
-            "AND status != 3 ",
+            "AND status != 3 " +
+            "ORDER BY status ASC",
             nativeQuery = true)
     List<Task> findAllUnfinishedRequestTask(
             @Param("userId") String userId

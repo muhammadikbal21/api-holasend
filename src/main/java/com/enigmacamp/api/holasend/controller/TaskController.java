@@ -91,6 +91,10 @@ public class TaskController {
         validateRoleCourier(request, jwtTokenUtil, userService);
     }
 
+    private void validateCourierOrAdmin(HttpServletRequest request) {
+        validateRoleCourierOrAdmin(request, jwtTokenUtil, userService);
+    }
+
     private void validateMinimumCourier(HttpServletRequest request) {
         validateRoleMinimumCourier(request, jwtTokenUtil, userService);
     }
@@ -265,7 +269,7 @@ public class TaskController {
             @PathVariable String id,
             HttpServletRequest request
     ) {
-        validateCourier(request);
+        validateCourierOrAdmin(request);
 
         Task entity = service.findById(id);
         if (entity.getPickUpTime() == null)

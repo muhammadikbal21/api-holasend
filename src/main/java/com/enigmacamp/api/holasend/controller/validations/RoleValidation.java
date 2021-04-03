@@ -36,6 +36,14 @@ public class RoleValidation {
         }
     }
 
+    public static void validateRoleCourierOrAdmin(HttpServletRequest request, JwtToken jwtTokenUtil, UserService userService) {
+        String username = startWithBearer(request, jwtTokenUtil);
+        User user = userService.findByUsername(username);
+        if (!(user.getRole().equals(ADMIN) || user.getRole().equals(COURIER))) {
+            throw new InvalidPermissionsException();
+        }
+    }
+
     public static void validateRoleCourier(HttpServletRequest request, JwtToken jwtTokenUtil, UserService userService) {
         validateRole(request, jwtTokenUtil, userService, COURIER);
     }
